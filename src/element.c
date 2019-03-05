@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -775,9 +775,9 @@ boolean OCI_API OCI_ElemSetBoolean
 
     if (elem->handle)
     {
- 		boolean *data = (boolean *) elem->handle;
+        boolean *data = (boolean *) elem->handle;
  
-		*data = value;
+        *data = value;
      
         OCI_ElemSetNullIndicator(elem, OCI_IND_NOTNULL);
     }
@@ -1169,7 +1169,7 @@ boolean OCI_API OCI_ElemIsNull
 
     if (elem->pind)
     {
-		OCI_RETVAL = (OCI_IND_NULL == *elem->pind);
+        OCI_RETVAL = (OCI_IND_NULL == *elem->pind);
     }
 
     OCI_CALL_EXIT()

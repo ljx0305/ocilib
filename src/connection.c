@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1081,7 +1081,12 @@ void * OCI_API OCI_GetUserData
     OCI_Connection *con
 )
 {
-    OCI_GET_PROP(void*, NULL, OCI_IPC_CONNECTION, con, usrdata, con, NULL, con->err)
+    OCI_CALL_ENTER(void*, NULL)
+    OCI_CALL_CHECK_INITIALIZED()
+
+    OCI_RETVAL = (void*) (con ? con->usrdata : OCILib.usrdata);
+    
+    OCI_CALL_EXIT()
 }
 
 /* --------------------------------------------------------------------------------------------- *
@@ -1094,7 +1099,21 @@ boolean OCI_API OCI_SetUserData
     void           *data
 )
 {
-    OCI_SET_PROP(void*, OCI_IPC_CONNECTION, con, usrdata, data, con, NULL, con->err)
+    OCI_CALL_ENTER(boolean, FALSE)
+    OCI_CALL_CHECK_INITIALIZED()
+
+    if (con)
+    {
+        con->usrdata = data;
+    }
+    else
+    {
+        OCILib.usrdata = data;
+    }
+
+    OCI_RETVAL = TRUE;
+
+    OCI_CALL_EXIT()
 }
 
 /* --------------------------------------------------------------------------------------------- *
@@ -1313,9 +1332,9 @@ const otext * OCI_API OCI_GetVersionServer
         {    
             dbstr = OCI_StringGetOracleString(con->ver_str, &dbsize);
 
-         #if OCI_VERSION_COMPILE >= OCI_18_3
+         #if OCI_VERSION_COMPILE >= OCI_18_1
    
-            if (OCILib.version_runtime >= OCI_18_3)
+            if (OCILib.version_runtime >= OCI_18_1)
             {
                 OCI_EXEC(OCIServerRelease2((dvoid *)con->cxt, con->err, (OraText *)dbstr, (ub4)dbsize, (ub1)OCI_HTYPE_SVCCTX, &version, OCI_DEFAULT))
             }
@@ -1335,9 +1354,9 @@ const otext * OCI_API OCI_GetVersionServer
         {
             int ver_maj = 0, ver_min = 0, ver_rev = 0;
 
-        #if OCI_VERSION_COMPILE >= OCI_18_3
+        #if OCI_VERSION_COMPILE >= OCI_18_1
 
-            if (OCILib.version_runtime >= OCI_18_3)
+            if (OCILib.version_runtime >= OCI_18_1)
             {
                 ver_maj = OCI_SERVER_RELEASE_REL(version);
                 ver_min = OCI_SERVER_RELEASE_REL_UPD(version);
@@ -1905,22 +1924,25 @@ boolean OCI_API OCI_SetTimeout
             {
                 OCI_SET_ATTRIB(OCI_HTYPE_SERVER, OCI_ATTR_SEND_TIMEOUT, con->svr, &timeout, sizeof(timeout))
                 OCI_RETVAL = OCI_STATUS;
+                break;
             }
             case OCI_NTO_RECEIVE:
             {
                 OCI_SET_ATTRIB(OCI_HTYPE_SERVER, OCI_ATTR_RECEIVE_TIMEOUT, con->svr, &timeout, sizeof(timeout))
                 OCI_RETVAL = OCI_STATUS;
+                break;
             }
 
          #if OCI_VERSION_COMPILE >= OCI_18_1
 
             case OCI_NTO_CALL:
             {
-                if (OCILib.version_runtime >= OCI_12_1)
+                if (OCILib.version_runtime >= OCI_18_1)
                 {
                     OCI_SET_ATTRIB(OCI_HTYPE_SVCCTX, OCI_ATTR_CALL_TIMEOUT, con->cxt, &timeout, sizeof(timeout))
                     OCI_RETVAL = OCI_STATUS;
                 }
+                break;
             }
 
         #endif
@@ -1960,20 +1982,23 @@ unsigned int OCI_API OCI_GetTimeout
             case OCI_NTO_SEND:
             {
                 OCI_GET_ATTRIB(OCI_HTYPE_SERVER, OCI_ATTR_SEND_TIMEOUT, con->svr, &timeout, sizeof(timeout))
+                break;
             }
             case OCI_NTO_RECEIVE:
             {
                 OCI_GET_ATTRIB(OCI_HTYPE_SERVER, OCI_ATTR_RECEIVE_TIMEOUT, con->svr, &timeout, sizeof(timeout))
+                 break;
             }
 
         #if OCI_VERSION_COMPILE >= OCI_18_1
 
             case OCI_NTO_CALL:
             {
-                if (OCILib.version_runtime >= OCI_12_1)
+                if (OCILib.version_runtime >= OCI_18_3)
                 {
                     OCI_GET_ATTRIB(OCI_HTYPE_SVCCTX, OCI_ATTR_CALL_TIMEOUT, con->cxt, &timeout, sizeof(timeout))
                 }
+                break;
             }
             
          #endif

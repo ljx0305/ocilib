@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,6 +287,7 @@ extern XAOENV                       xaoEnv;
 extern OCILOBGETCONTENTTYPE         OCILobGetContentType;
 extern OCISTMTGETNEXTRESULT         OCIStmtGetNextResult;
 extern OCISERVERRELEASE2            OCIServerRelease2;
+extern OCISODAOPERKEYSSET           OCISodaOperKeysSet;
 
 #ifdef ORAXB8_DEFINED
 

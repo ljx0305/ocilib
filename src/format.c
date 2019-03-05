@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,23 +324,23 @@ int OCI_ParseSqlFmt
 
                 break;
             }
-			case OTEXT('n'):
-			{
-				otext temp[128];
+            case OTEXT('n'):
+            {
+                otext temp[128];
 
-				temp[0] = 0;
+                temp[0] = 0;
 
-				OCI_NumberToText(va_arg(*pargs, OCI_Number*), NULL, 128, temp);
-				len = (int) ostrlen(temp);
+                OCI_NumberToText(va_arg(*pargs, OCI_Number*), NULL, 128, temp);
+                len = (int) ostrlen(temp);
 
-				if (buf && (len > 0))
-				{
-					ostrcpy(pb, temp);
-				}
+                if (buf && (len > 0))
+                {
+                    ostrcpy(pb, temp);
+                }
 
-				break;
-			}
-			case OTEXT('r'):
+                break;
+            }
+            case OTEXT('r'):
             {
                 otext temp[128];
 

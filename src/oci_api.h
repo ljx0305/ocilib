@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2152,7 +2152,7 @@ typedef sword (*OCISTMTGETNEXTRESULT)
     ub4          mode
 );
 
-/* API introduced in 18.3 */
+/* API introduced in 18.1 */
 
 typedef sword(*OCISERVERRELEASE2)
 (
@@ -2165,6 +2165,17 @@ typedef sword(*OCISERVERRELEASE2)
     ub4          mode
 );
 
+/* API introduced in 18.3 */
+
+typedef sword(*OCISODAOPERKEYSSET)
+(
+    const void   *operhp, // should be OCISodaOperationOptions
+    OraText     **keysArray,
+    ub4          *lengthsArray,
+    ub4           count,
+    OCIError     *errhp,
+    ub4           mode
+);
 
 #endif /* OCILIB_OCI_API_H_INCLUDED */
 

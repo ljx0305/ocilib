@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,6 +220,7 @@ struct OCI_Library
     big_uint             mem_bytes_oci;           /* allocated bytes by OCI client */
     big_uint             mem_bytes_lib;           /* allocated bytes by OCILIB */
     OCI_Mutex           *mem_mutex;               /* mutex for memory counters */
+    void                *usrdata;                 /* user data */
     boolean              env_vars[OCI_VARS_COUNT];/* specific environment variables */
 #ifdef OCI_IMPORT_RUNTIME
     LIB_HANDLE           lib_handle;              /* handle of runtime shared library */

@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -732,11 +732,11 @@ boolean OCI_FetchIntoUserVariables
                     SET_ARG_NUM(float, OCI_GetFloat);
                     break;
                 }
-				case OCI_ARG_NUMBER:
-				{
-					SET_ARG_HANDLE(OCI_Number, OCI_GetNumber, OCI_NumberAssign);
-					break;
-				}
+                case OCI_ARG_NUMBER:
+                {
+                    SET_ARG_HANDLE(OCI_Number, OCI_GetNumber, OCI_NumberAssign);
+                    break;
+                }
                 case OCI_ARG_DATETIME:
                 {
                     SET_ARG_HANDLE(OCI_Date, OCI_GetDate, OCI_DateAssign);
@@ -1412,7 +1412,7 @@ boolean OCI_API OCI_ReleaseResultsets
         {
             if (stmt->rsts[i])
             {
-				OCI_StatementClose(stmt->stmts[i]);
+                OCI_StatementClose(stmt->stmts[i]);
             }
         }
 
@@ -1426,7 +1426,7 @@ boolean OCI_API OCI_ReleaseResultsets
         {
             if (stmt->rsts[i])
             {
-				OCI_ResultsetFree(stmt->rsts[i]);
+                OCI_ResultsetFree(stmt->rsts[i]);
             }
         }
 

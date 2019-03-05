@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -395,6 +395,7 @@ XAOENV                       xaoEnv                       = NULL;
 OCILOBGETCONTENTTYPE         OCILobGetContentType         = NULL;
 OCISTMTGETNEXTRESULT         OCIStmtGetNextResult         = NULL;
 OCISERVERRELEASE2            OCIServerRelease2            = NULL;
+OCISODAOPERKEYSSET           OCISodaOperKeysSet           = NULL;
 
 #ifdef ORAXB8_DEFINED
 
@@ -1331,11 +1332,18 @@ boolean OCI_API OCI_Initialize
         LIB_SYMBOL(OCILib.lib_handle, "OCIServerRelease2", OCIServerRelease2,
                    OCISERVERRELEASE2);
 
+        LIB_SYMBOL(OCILib.lib_handle, "OCISodaOperKeysSet", OCISodaOperKeysSet,
+            OCISODAOPERKEYSSET);
+
         /* API Version checking */
 
-        if (OCIServerRelease2)
+        if (OCISodaOperKeysSet)
         {
             OCILib.version_runtime = OCI_18_3;
+        }
+        else if (OCIServerRelease2)
+        {
+            OCILib.version_runtime = OCI_18_1;
         }
         else if (OCIStmtGetNextResult)
         {

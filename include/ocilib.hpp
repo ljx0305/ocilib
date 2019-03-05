@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,9 +240,11 @@ enum OracleVersionValues
     Oracle11gR1 = OCI_11_1,
     Oracle11gR2 = OCI_11_2,
     Oracle12cR1 = OCI_12_1,
+    Oracle12cR2 = OCI_12_2,
     Oracle18cR1 = OCI_18_1,
     Oracle18cR2 = OCI_18_2,
-    Oracle18cR3 = OCI_18_3
+	Oracle18cR3 = OCI_18_3,
+    Oracle18cR4 = OCI_18_4
 };
 
 /**
@@ -985,9 +987,10 @@ public:
      * This function must be called before any other OCILIB library function.
      *
      * @warning
-     * It should be called <b>ONCE</b> per application
+     * - It should be called <b>ONCE</b> per application
+	 * - It is not thread safe
      *
-     * @warning
+     * @note
      * - The parameter 'libpath' is only used if OCILIB has been built with the option OCI_IMPORT_RUNTIME
      * - If the parameter 'lib_path' is NULL, the Oracle library is loaded from system environment variables
      *
@@ -1004,7 +1007,8 @@ public:
      * - It unloads the Oracle shared library if it has been dynamically loaded
      *
      * @warning
-     * It should be called <b>ONCE</b> per application
+     * - It should be called <b>ONCE</b> per application
+     * - It is not thread safe
      *
      */
     static void Cleanup();
@@ -6616,9 +6620,6 @@ private:
 
     template<typename M, class T, class U>
     void BindVector2(M &method, const ostring& name, std::vector<T> &values, BindInfo::BindDirection mode, U subType, BindInfo::VectorType type);
-
-    template<class T>
-    unsigned int GetArraysize(BindInfo::VectorType type, std::vector<T> &values);
 
     template<typename T>
     unsigned int Fetch(T callback);

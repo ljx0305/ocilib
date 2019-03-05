@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,9 +58,9 @@ boolean OCI_ArrayInit
 {
     for (unsigned int i = 0; i < arr->nb_elem; i++)
     {
-		void *handle = NULL;
+        void *handle = NULL;
 
-		if (OCI_CDT_DATETIME == arr->elem_type)
+        if (OCI_CDT_DATETIME == arr->elem_type)
         {
             handle = &(((OCIDate *)(arr->mem_handle))[i]);
         }

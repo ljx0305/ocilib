@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2018 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ OCI_TypeInfo * OCI_ObjectGetRealTypeInfo(OCI_TypeInfo *typinf, void *object)
 
     if (object && result->type == OCI_TIF_TYPE && !result->is_final)
     {
-        OCIRef	*ref = NULL;
+        OCIRef  *ref = NULL;
         OCIType *tdo = NULL;
 
         /* create a local REF to store a REF to the object real type */
@@ -430,10 +430,10 @@ boolean OCI_ObjectGetAttrInfo
         }
     }
 
-	if (*p_align > typinf->align)
-	{
-		typinf->align = *p_align;
-	}
+    if (*p_align > typinf->align)
+    {
+        typinf->align = *p_align;
+    }
 
 
     return TRUE;
