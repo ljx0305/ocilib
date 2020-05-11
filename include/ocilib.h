@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
  * The OCILIB documentation intends to explain Oracle / OCI concepts
  * and is naturally based on the official Oracle OCI documentation. 
  * 
- * Some parts of OCILIB documentation may include some informations 
+ * Some parts of OCILIB documentation may include some information 
  * taken and adapted from the following Oracle documentations :
  *  - Oracle Call Interface Programmer's Guide
  *  - Oracle Streams - Advanced Queuing User's Guide
@@ -80,7 +80,7 @@ extern "C" {
   #ifdef boolean
     #undef boolean
   #endif
-  #include <windows.h>
+  #include <Windows.h>
   #ifdef boolean
     #undef boolean
   #endif
@@ -92,7 +92,7 @@ extern "C" {
 
 #define OCILIB_MAJOR_VERSION     4
 #define OCILIB_MINOR_VERSION     6
-#define OCILIB_REVISION_VERSION  2
+#define OCILIB_REVISION_VERSION  4
 
 /* Import mode */
 
@@ -185,7 +185,7 @@ extern "C" {
  * @par Unicode and ISO C
  *
  * Well, ISO C:
- * - doesn't know anything about Unicode.
+ * - does not know anything about Unicode.
  * - makes wide characters support tricky because wide character size is not defined and is freely adaptable by implementations.
  *
  * OCILIB uses char/wchar_t strings for both public interface and internal storage.
@@ -1075,7 +1075,7 @@ typedef unsigned int big_uint;
 #define OCI_VER_MIN(v)                      (unsigned int) (((v)/10) - (((v)/100)*10))
 #define OCI_VER_REV(v)                      (unsigned int) ((v) - (((v)/10)*10))
 
-#define OCI_VER_MAKE(x, y, z)               ((x)*100 + (y)*10 + z)
+#define OCI_VER_MAKE(x, y, z)               ((x)*100 + (y)*10 + (z))
 
 /* oracle OCI key versions*/
 
@@ -1093,6 +1093,8 @@ typedef unsigned int big_uint;
 #define OCI_18_2                            OCI_VER_MAKE(18, 2, 0)
 #define OCI_18_3                            OCI_VER_MAKE(18, 3, 0)
 #define OCI_18_4                            OCI_VER_MAKE(18, 4, 0)
+#define OCI_18_5                            OCI_VER_MAKE(18, 5, 0) 
+#define OCI_19_3                            OCI_VER_MAKE(19, 3, 0)
 
 /* OCILIB Error types */
 
@@ -1560,137 +1562,252 @@ typedef unsigned int big_uint;
 
 /* sql function codes */
 
-#define OCI_SFC_CREATE_TABLE                1
-#define OCI_SFC_SET_ROLE                    2
-#define OCI_SFC_INSERT                      3
-#define OCI_SFC_SELECT                      4
-#define OCI_SFC_UPDATE                      5
-#define OCI_SFC_DROP_ROLE                   6
-#define OCI_SFC_DROP_VIEW                   7
-#define OCI_SFC_DROP_TABLE                  8
-#define OCI_SFC_DELETE                      9
-#define OCI_SFC_CREATE_VIEW                 10
-#define OCI_SFC_DROP_USER                   11
-#define OCI_SFC_CREATE_ROLE                 12
-#define OCI_SFC_CREATE_SEQUENCE             13
-#define OCI_SFC_ALTER_SEQUENCE              14
+#define OCI_SFC_CREATE_TABLE                    1
+#define OCI_SFC_INSERT                          2
+#define OCI_SFC_SELECT                          3
+#define OCI_SFC_CREATE_CLUSTER                  4
+#define OCI_SFC_ALTER_CLUSTER                   5
+#define OCI_SFC_UPDATE                          6
+#define OCI_SFC_DELETE                          7
+#define OCI_SFC_DROP_CLUSTER                    8
+#define OCI_SFC_CREATE_INDEX                    9
+#define OCI_SFC_DROP_INDEX                      10
+#define OCI_SFC_ALTER_INDEX                     11
+#define OCI_SFC_DROP_TABLE                      12
+#define OCI_SFC_CREATE_SEQUENCE                 13
+#define OCI_SFC_ALTER_SEQUENCE                  14
+#define OCI_SFC_ALTER_TABLE                     15
+#define OCI_SFC_DROP_SEQUENCE                   16
+#define OCI_SFC_GRANT_OBJECT                    17
+#define OCI_SFC_REVOKE_OBJECT                   18
+#define OCI_SFC_CREATE_SYNONYM                  19
+#define OCI_SFC_DROP_SYNONYM                    20
+#define OCI_SFC_CREATE_VIEW                     21
+#define OCI_SFC_DROP_VIEW                       22
+#define OCI_SFC_VALIDATE_INDEX                  23
+#define OCI_SFC_CREATE_PROCEDURE                24
+#define OCI_SFC_ALTER_PROCEDURE                 25
+#define OCI_SFC_LOCK                            26
+#define OCI_SFC_NO_OP                           27
+#define OCI_SFC_RENAME                          28
+#define OCI_SFC_COMMENT                         29
+#define OCI_SFC_AUDIT_OBJECT                    30
+#define OCI_SFC_NOAUDIT_OBJECT                  31
+#define OCI_SFC_CREATE_DATABASE_LINK            32
+#define OCI_SFC_DROP_DATABASE_LINK              33
+#define OCI_SFC_CREATE_DATABASE                 34
+#define OCI_SFC_ALTER_DATABASE                  35
+#define OCI_SFC_CREATE_ROLLBACK_SEG             36
+#define OCI_SFC_ALTER_ROLLBACK_SEG              37
+#define OCI_SFC_DROP_ROLLBACK_SEG               38
+#define OCI_SFC_CREATE_TABLESPACE               39
+#define OCI_SFC_ALTER_TABLESPACE                40
+#define OCI_SFC_DROP_TABLESPACE                 41
+#define OCI_SFC_ALTER_SESSION                   42
+#define OCI_SFC_ALTER_USER                      43
+#define OCI_SFC_COMMIT                          44
+#define OCI_SFC_ROLLBACK                        45
+#define OCI_SFC_SAVEPOINT                       46
+#define OCI_SFC_PL_SQL_EXECUTE                  47
+#define OCI_SFC_SET_TRANSACTION                 48
+#define OCI_SFC_ALTER_SYSTEM                    49
+#define OCI_SFC_EXPLAIN                         50
+#define OCI_SFC_CREATE_USER                     51
+#define OCI_SFC_CREATE_ROLE                     52
+#define OCI_SFC_DROP_USER                       53
+#define OCI_SFC_DROP_ROLE                       54
+#define OCI_SFC_SET_ROLE                        55
+#define OCI_SFC_CREATE_SCHEMA                   56
+#define OCI_SFC_CREATE_CONTROL_FILE             57
+#define OCI_SFC_ALTER_TRACING                   58
+#define OCI_SFC_CREATE_TRIGGER                  59
+#define OCI_SFC_ALTER_TRIGGER                   60
+#define OCI_SFC_DROP_TRIGGER                    61
+#define OCI_SFC_ANALYZE_TABLE                   62
+#define OCI_SFC_ANALYZE_INDEX                   63
+#define OCI_SFC_ANALYZE_CLUSTER                 64
+#define OCI_SFC_CREATE_PROFILE                  65
+#define OCI_SFC_DROP_PROFILE                    66
+#define OCI_SFC_ALTER_PROFILE                   67
+#define OCI_SFC_DROP_PROCEDURE                  68
+#define OCI_SFC_ALTER_RESOURCE_COST             70
+#define OCI_SFC_CREATE_MATERIALIZED_VIEW_LOG    71
+#define OCI_SFC_ALTER_MATERIALIZED_VIEW_LOG     72
+#define OCI_SFC_DROP_MATERIALIZED_VIEW_LOG      73
+#define OCI_SFC_CREATE_MATERIALIZED_VIEW        74
+#define OCI_SFC_ALTER_MATERIALIZED_VIEW         75
+#define OCI_SFC_DROP_MATERIALIZED_VIEW          76
+#define OCI_SFC_CREATE_TYPE                     77
+#define OCI_SFC_DROP_TYPE                       78
+#define OCI_SFC_ALTER_ROLE                      79
+#define OCI_SFC_ALTER_TYPE                      80
+#define OCI_SFC_CREATE_TYPE_BODY                81
+#define OCI_SFC_ALTER_TYPE_BODY                 82
+#define OCI_SFC_DROP_TYPE_BODY                  83
+#define OCI_SFC_DROP_LIBRARY                    84
+#define OCI_SFC_TRUNCATE_TABLE                  85
+#define OCI_SFC_TRUNCATE_CLUSTER                86
+#define OCI_SFC_ALTER_VIEW                      88
+#define OCI_SFC_SET_CONSTRAINTS                 90
+#define OCI_SFC_CREATE_FUNCTION                 91
+#define OCI_SFC_ALTER_FUNCTION                  92
+#define OCI_SFC_DROP_FUNCTION                   93
+#define OCI_SFC_CREATE_PACKAGE                  94
+#define OCI_SFC_ALTER_PACKAGE                   95
+#define OCI_SFC_DROP_PACKAGE                    96
+#define OCI_SFC_CREATE_PACKAGE_BODY             97
+#define OCI_SFC_ALTER_PACKAGE_BODY              98
+#define OCI_SFC_DROP_PACKAGE_BODY               99
+#define OCI_SFC_LOGON                           100
+#define OCI_SFC_LOGOFF                          101
+#define OCI_SFC_LOGOFF_BY_CLEANUP               102
+#define OCI_SFC_SESSION_REC                     103
+#define OCI_SFC_SYSTEM_AUDIT                    104
+#define OCI_SFC_SYSTEM_NOAUDIT                  105
+#define OCI_SFC_AUDIT_DEFAULT                   106
+#define OCI_SFC_NOAUDIT_DEFAULT                 107
+#define OCI_SFC_SYSTEM_GRANT                    108
+#define OCI_SFC_SYSTEM_REVOKE                   109
+#define OCI_SFC_CREATE_PUBLIC_SYNONYM           110
+#define OCI_SFC_DROP_PUBLIC_SYNONYM             111
+#define OCI_SFC_CREATE_PUBLIC_DATABASE_LINK     112
+#define OCI_SFC_DROP_PUBLIC_DATABASE_LINK       113
+#define OCI_SFC_GRANT_ROLE                      114
+#define OCI_SFC_REVOKE_ROLE                     115
+#define OCI_SFC_EXECUTE_PROCEDURE               116
+#define OCI_SFC_USER_COMMENT                    117
+#define OCI_SFC_ENABLE_TRIGGER                  118
+#define OCI_SFC_DISABLE_TRIGGER                 119
+#define OCI_SFC_ENABLE_ALL_TRIGGERS             120
+#define OCI_SFC_DISABLE_ALL_TRIGGERS            121
+#define OCI_SFC_NETWORK_ERROR                   122
+#define OCI_SFC_EXECUTE_TYPE                    123
+#define OCI_SFC_READ_DIRECTORY                  125
+#define OCI_SFC_WRITE_DIRECTORY                 126
+#define OCI_SFC_FLASHBACK                       128
+#define OCI_SFC_BECOME_USER                     129
+#define OCI_SFC_ALTER_MINING_MODEL              130
+#define OCI_SFC_SELECT_MINING_MODEL             131
+#define OCI_SFC_CREATE_MINING_MODEL             133
+#define OCI_SFC_ALTER_PUBLIC_SYNONYM            134
+#define OCI_SFC_EXECUTE_DIRECTORY               135
+#define OCI_SFC_SQL_LOADER_DIRECT_PATH_LOAD     136
+#define OCI_SFC_DATAPUMP_DIRECT_PATH_UNLOAD     137
+#define OCI_SFC_DATABASE_STARTUP                138
+#define OCI_SFC_DATABASE_SHUTDOWN               139
+#define OCI_SFC_CREATE_SQL_TXLN_PROFILE         140
+#define OCI_SFC_ALTER_SQL_TXLN_PROFILE          141
+#define OCI_SFC_USE_SQL_TXLN_PROFILE            142
+#define OCI_SFC_DROP_SQL_TXLN_PROFILE           143
+#define OCI_SFC_CREATE_MEASURE_FOLDER           144
+#define OCI_SFC_ALTER_MEASURE_FOLDER            145
+#define OCI_SFC_DROP_MEASURE_FOLDER             146
+#define OCI_SFC_CREATE_CUBE_BUILD_PROCESS       147
+#define OCI_SFC_ALTER_CUBE_BUILD_PROCESS        148
+#define OCI_SFC_DROP_CUBE_BUILD_PROCESS         149
+#define OCI_SFC_CREATE_CUBE                     150
+#define OCI_SFC_ALTER_CUBE                      151
+#define OCI_SFC_DROP_CUBE                       152
+#define OCI_SFC_CREATE_CUBE_DIMENSION           153
+#define OCI_SFC_ALTER_CUBE_DIMENSION            154
+#define OCI_SFC_DROP_CUBE_DIMENSION             155
+#define OCI_SFC_CREATE_DIRECTORY                157
+#define OCI_SFC_DROP_DIRECTORY                  158
+#define OCI_SFC_CREATE_LIBRARY                  159
+#define OCI_SFC_CREATE_JAVA                     160
+#define OCI_SFC_ALTER_JAVA                      161
+#define OCI_SFC_DROP_JAVA                       162
+#define OCI_SFC_CREATE_OPERATOR                 163
+#define OCI_SFC_CREATE_INDEXTYPE                164
+#define OCI_SFC_DROP_INDEXTYPE                  165
+#define OCI_SFC_ALTER_INDEXTYPE                 166
+#define OCI_SFC_DROP_OPERATOR                   167
+#define OCI_SFC_ASSOCIATE_STATISTICS            168
+#define OCI_SFC_DISASSOCIATE_STATISTICS         169
+#define OCI_SFC_CALL_METHOD                     170
+#define OCI_SFC_CREATE_SUMMARY                  171
+#define OCI_SFC_ALTER_SUMMARY                   172
+#define OCI_SFC_DROP_SUMMARY                    173
+#define OCI_SFC_CREATE_DIMENSION                174
+#define OCI_SFC_ALTER_DIMENSION                 175
+#define OCI_SFC_DROP_DIMENSION                  176
+#define OCI_SFC_CREATE_CONTEXT                  177
+#define OCI_SFC_DROP_CONTEXT                    178
+#define OCI_SFC_ALTER_OUTLINE                   179
+#define OCI_SFC_CREATE_OUTLINE                  180
+#define OCI_SFC_DROP_OUTLINE                    181
+#define OCI_SFC_UPDATE_INDEXES                  182
+#define OCI_SFC_ALTER_OPERATOR                  183
+#define OCI_SFC_CREATE_SPFILE                   187
+#define OCI_SFC_CREATE_PFILE                    188
+#define OCI_SFC_MERGE                           189
+#define OCI_SFC_PASSWORD_CHANGE                 190
+#define OCI_SFC_ALTER_SYNONYM                   192
+#define OCI_SFC_ALTER_DISKGROUP                 193
+#define OCI_SFC_CREATE_DISKGROUP                194
+#define OCI_SFC_DROP_DISKGROUP                  195
+#define OCI_SFC_PURGE_RECYCLEBIN                197
+#define OCI_SFC_PURGE_DBA_RECYCLEBIN            198
+#define OCI_SFC_PURGE_TABLESPACE                199
+#define OCI_SFC_PURGE_TABLE                     200
+#define OCI_SFC_PURGE_INDEX                     201
+#define OCI_SFC_UNDROP_OBJECT                   202
+#define OCI_SFC_DROP_DATABASE                   203
+#define OCI_SFC_FLASHBACK_DATABASE              204
+#define OCI_SFC_FLASHBACK_TABLE                 205
+#define OCI_SFC_CREATE_RESTORE_POINT            206
+#define OCI_SFC_DROP_RESTORE_POINT              207
+#define OCI_SFC_PROXY_AUTHENTICATION_ONLY       208
+#define OCI_SFC_DECLARE_REWRITE_EQUIVALENCE     209
+#define OCI_SFC_ALTER_REWRITE_EQUIVALENCE       210
+#define OCI_SFC_DROP_REWRITE_EQUIVALENCE        211
+#define OCI_SFC_CREATE_EDITION                  212
+#define OCI_SFC_ALTER_EDITION                   213
+#define OCI_SFC_DROP_EDITION                    214
+#define OCI_SFC_DROP_ASSEMBLY                   215
+#define OCI_SFC_CREATE_ASSEMBLY                 216
+#define OCI_SFC_ALTER_ASSEMBLY                  217
+#define OCI_SFC_CREATE_FLASHBACK_ARCHIVE        218
+#define OCI_SFC_ALTER_FLASHBACK_ARCHIVE         219
+#define OCI_SFC_DROP_FLASHBACK_ARCHIVE          220
+#define OCI_SFC_DEBUG_CONNECT                   221
+#define OCI_SFC_DEBUG_PROCEDURE                 223
+#define OCI_SFC_ALTER_DATABASE_LINK             225
+#define OCI_SFC_CREATE_PLUGGABLE_DATABASE       226
+#define OCI_SFC_ALTER_PLUGGABLE_DATABASE        227
+#define OCI_SFC_DROP_PLUGGABLE_DATABASE         228
+#define OCI_SFC_CREATE_AUDIT_POLICY             229
+#define OCI_SFC_ALTER_AUDIT_POLICY              230
+#define OCI_SFC_DROP_AUDIT_POLICY               231
+#define OCI_SFC_CODE_BASED_GRANT                232
+#define OCI_SFC_CODE_BASED_REVOKE               233
+#define OCI_SFC_CREATE_LOCKDOWN_PROFILE         234
+#define OCI_SFC_DROP_LOCKDOWN_PROFILE           235
+#define OCI_SFC_ALTER_LOCKDOWN_PROFILE          236
+#define OCI_SFC_TRANSLATE_SQL                   237
+#define OCI_SFC_ADMINISTER_KEY_MANAGEMENT       238
+#define OCI_SFC_CREATE_MATERIALIZED_ZONEMAP     239
+#define OCI_SFC_ALTER_MATERIALIZED_ZONEMAP      240
+#define OCI_SFC_DROP_MATERIALIZED_ZONEMAP       241
+#define OCI_SFC_DROP_MINING_MODEL               242
+#define OCI_SFC_CREATE_ATTRIBUTE_DIMENSION      243
+#define OCI_SFC_ALTER_ATTRIBUTE_DIMENSION       244
+#define OCI_SFC_DROP_ATTRIBUTE_DIMENSION        245
+#define OCI_SFC_CREATE_HIERARCHY                246
+#define OCI_SFC_ALTER_HIERARCHY                 247
+#define OCI_SFC_DROP_HIERARCHY                  248
+#define OCI_SFC_CREATE_ANALYTIC_VIEW            249
+#define OCI_SFC_ALTER_ANALYTIC_VIEW             250
+#define OCI_SFC_DROP_ANALYTIC_VIEW              251
+#define OCI_SFC_ALTER_PUBLIC_DATABASE_LINK      305
 
-#define OCI_SFC_DROP_SEQUENCE               16
-#define OCI_SFC_CREATE_SCHEMA               17
-#define OCI_SFC_CREATE_CLUSTER              18
-#define OCI_SFC_CREATE_USER                 19
-#define OCI_SFC_CREATE_INDEX                20
-#define OCI_SFC_DROP_INDEX                  21
-#define OCI_SFC_DROP_CLUSTER                22
-#define OCI_SFC_VALIDATE_INDEX              23
-#define OCI_SFC_CREATE_PROCEDURE            24
-#define OCI_SFC_ALTER_PROCEDURE             25
-#define OCI_SFC_ALTER_TABLE                 26
-#define OCI_SFC_EXPLAIN                     27
-#define OCI_SFC_GRANT                       28
-#define OCI_SFC_REVOKE                      29
-#define OCI_SFC_CREATE_SYNONYM              30
-#define OCI_SFC_DROP_SYNONYM                31
-#define OCI_SFC_ALTER_SYSTEM_SWITCHLOG      32
-#define OCI_SFC_SET_TRANSACTION             33
-#define OCI_SFC_PLSQL_EXECUTE               34
-#define OCI_SFC_LOCK                        35
-#define OCI_SFC_NOOP                        36
-#define OCI_SFC_RENAME                      37
-#define OCI_SFC_COMMENT                     38
-#define OCI_SFC_AUDIT                       39
-#define OCI_SFC_NO_AUDIT                    40
-#define OCI_SFC_ALTER_INDEX                 41
-#define OCI_SFC_CREATE_EXTERNAL_DATABASE    42
-#define OCI_SFC_DROP_EXTERNALDATABASE       43
-#define OCI_SFC_CREATE_DATABASE             44
-#define OCI_SFC_ALTER_DATABASE              45
-#define OCI_SFC_CREATE_ROLLBACK_SEGMENT     46
-#define OCI_SFC_ALTER_ROLLBACK_SEGMENT      47
-#define OCI_SFC_DROP_ROLLBACK_SEGMENT       48
-#define OCI_SFC_CREATE_TABLESPACE           49
-#define OCI_SFC_ALTER_TABLESPACE            50
-#define OCI_SFC_DROP_TABLESPACE             51
-#define OCI_SFC_ALTER_SESSION               52
-#define OCI_SFC_ALTER_USER                  53
-#define OCI_SFC_COMMIT_WORK                 54
-#define OCI_SFC_ROLLBACK                    55
-#define OCI_SFC_SAVEPOINT                   56
-#define OCI_SFC_CREATE_CONTROL_FILE         57
-#define OCI_SFC_ALTER_TRACING               58
-#define OCI_SFC_CREATE_TRIGGER              59
-#define OCI_SFC_ALTER_TRIGGER               60
-#define OCI_SFC_DROP_TRIGGER                61
-#define OCI_SFC_ANALYZE_TABLE               62
-#define OCI_SFC_ANALYZE_INDEX               63
-#define OCI_SFC_ANALYZE_CLUSTER             64
-#define OCI_SFC_CREATE_PROFILE              65
-#define OCI_SFC_DROP_PROFILE                66
-#define OCI_SFC_ALTER_PROFILE               67
-#define OCI_SFC_DROP_PROCEDURE              68
-
-#define OCI_SFC_ALTER_RESOURCE_COST         70
-#define OCI_SFC_CREATE_SNAPSHOT_LOG         71
-#define OCI_SFC_ALTER_SNAPSHOT_LOG          72
-#define OCI_SFC_DROP_SNAPSHOT_LOG           73
-#define OCI_SFC_DROP_SUMMARY                73
-#define OCI_SFC_CREATE_SNAPSHOT             74
-#define OCI_SFC_ALTER_SNAPSHOT              75
-#define OCI_SFC_DROP_SNAPSHOT               76
-#define OCI_SFC_CREATE_TYPE                 77
-#define OCI_SFC_DROP_TYPE                   78
-#define OCI_SFC_ALTER_ROLE                  79
-#define OCI_SFC_ALTER_TYPE                  80
-#define OCI_SFC_CREATE_TYPE_BODY            81
-#define OCI_SFC_ALTER_TYPE_BODY             82
-#define OCI_SFC_DROP_TYPE_BODY              83
-#define OCI_SFC_DROP_LIBRARY                84
-#define OCI_SFC_TRUNCATE_TABLE              85
-#define OCI_SFC_TRUNCATE_CLUSTER            86
-#define OCI_SFC_CREATE_BITMAPFILE           87
-#define OCI_SFC_ALTER_VIEW                  88
-#define OCI_SFC_DROP_BITMAPFILE             89
-#define OCI_SFC_SET_CONSTRAINTS             90
-#define OCI_SFC_CREATE_FUNCTION             91
-#define OCI_SFC_ALTER_FUNCTION              92
-#define OCI_SFC_DROP_FUNCTION               93
-#define OCI_SFC_CREATE_PACKAGE              94
-#define OCI_SFC_ALTER_PACKAGE               95
-#define OCI_SFC_DROP_PACKAGE                96
-#define OCI_SFC_CREATE_PACKAGE_BODY         97
-#define OCI_SFC_ALTER_PACKAGE_BODY          98
-#define OCI_SFC_DROP_PACKAGE_BODY           99
-#define OCI_SFC_CREATE_DIRECTORY            157
-#define OCI_SFC_DROP_DIRECTORY              158
-#define OCI_SFC_CREATE_LIBRARY              159
-#define OCI_SFC_CREATE_JAVA                 160
-#define OCI_SFC_ALTER_JAVA                  161
-#define OCI_SFC_DROP_JAVA                   162
-#define OCI_SFC_CREATE_OPERATOR             163
-#define OCI_SFC_CREATE_INDEXTYPE            164
-#define OCI_SFC_DROP_INDEXTYPE              165
-#define OCI_SFC_ALTER_INDEXTYPE             166
-#define OCI_SFC_DROP_OPERATOR               167
-#define OCI_SFC_ASSOCIATE_STATISTICS        168
-#define OCI_SFC_DISASSOCIATE_STATISTICS     169
-#define OCI_SFC_CALL_METHOD                 170
-#define OCI_SFC_CREATE_SUMMARY              171
-#define OCI_SFC_ALTER_SUMMARY               172
-#define OCI_SFC_CREATE_DIMENSION            174
-#define OCI_SFC_ALTER_DIMENSION             175
-#define OCI_SFC_DROP_DIMENSION              176
-#define OCI_SFC_CREATE_CONTEXT              177
-#define OCI_SFC_DROP_CONTEXT                178
-#define OCI_SFC_ALTER_OUTLINE               179
-#define OCI_SFC_CREATE_OUTLINE              180
-#define OCI_SFC_DROP_OUTLINE                181
-#define OCI_SFC_UPDATE_INDEXES              182
-#define OCI_SFC_ALTER_OPERATOR              183
+               
 
 /* size constants */
 
 #define OCI_SIZE_FORMAT                     64
 #define OCI_SIZE_BUFFER                     512
+#define OCI_SIZE_LARGE_BUFFER               ((64*1024)-1)
 #define OCI_SIZE_LONG                       ((64*1024)-1)
 #define OCI_SIZE_DATE                       45
 #define OCI_SIZE_TIMESTAMP                  54
@@ -1727,6 +1844,7 @@ typedef unsigned int big_uint;
 #define OCI_STRING_FALSE                    OTEXT("FALSE")
 #define OCI_STRING_TRUE_SIZE                4
 #define OCI_STRING_FALSE_SIZE               5
+#define OCI_STRING_NULL_SIZE                4
 
 #ifdef _WINDOWS
   #define OCI_CHAR_SLASH                    '\\'
@@ -1784,8 +1902,15 @@ typedef unsigned int big_uint;
  * OCI_Initialize() should be called <b>ONCE</b> per application
  *
  * @return
- * TRUE on success otherwise FALSE (only with Oracle runtime loading mode
- * if the oracle shared libraries can't be loaded or if OCI subsystem cannot be initialized)
+ * TRUE on success otherwise FALSE.
+ * Possible reasons for failures:
+ *  - when OCI_ErrorGetType() return OCI_ERR_ORACLE, OCI_ErrorGetOCICode() returns:
+ *    - any ORA-XXXXXX error code. Refer to Oracle documentation
+ *  - when OCI_ErrorGetType() return OCI_ERR_OCILIB, possible error code returned by OCI_ErrorGetInternalCode() 
+ *    - OCI_ERR_LOADING_SHARED_LIB : OCILIB could not load oracle shared libraries at runtime (32/64bits mismatch, wrong \p lib_path, missing MSVC runtime required by oci.dll (MS Windows)
+ *    - OCI_ERR_LOADING_SYMBOLS : the loaded shared library does not contain OCI symbols
+ *    - OCI_ERR_NOT_AVAILABLE : OCILIb was built with OCI_CHARSET_WIDE and the oracle shared library dos not supports UTF16 (Oracle 8i)
+ *    - OCI_ERR_CREATE_OCI_ENVIRONMENT: Oracle OCI environment initialization failed (in such cases, it is impossible to get the reason)
  *
  */
 
@@ -3116,14 +3241,6 @@ OCI_EXPORT unsigned int OCI_API OCI_GetMaxCursors
  * and the number of back-end server processes will never be large enough to potentially
  * cause any scaling issue on the database, there is no need to use any pooling mechanism.
  *
- * @par Oracle 8i support
- *
- * Pooling has bee introduced in  :
- * - 9iR1 for connection pools
- * - 9iR2 for session pools
- * For Oracle 8i, OCILIB implements its own pooling mechanism in order to remain compatible
- * with older versions. But sessions pools then are handled as connection pools
- *
  * @par Example
  * @include pool.c
  *
@@ -3148,8 +3265,7 @@ OCI_EXPORT unsigned int OCI_API OCI_GetMaxCursors
  *
  * Possible values for parameter 'mode':
  * - OCI_SESSION_DEFAULT
- * - OCI_SESSION_SYSDAB
- * - OCI_SESSION_SYSOPER
+ * - OCI_SESSION_SYSDBA (session pools only)
  *
  * @note
  * External credentials are supported by supplying a null value for the 'user'
@@ -3874,12 +3990,12 @@ OCI_EXPORT boolean OCI_API OCI_Parse
  * @note
  * This call prepares the statement (internal call to OCI_Prepare()) and ask
  * the Oracle server to describe the output SELECT list.
- * OCI_Execute() can be called after OCI_Desbribe() in order to execute the
+ * OCI_Execute() can be called after OCI_Describe() in order to execute the
  * statement, which means that the server will parse, and describe again the SQL
  * order.
  *
  * @warning
- * Do not use OCI_Desbribe() unless you're only interested in the resultset
+ * Do not use OCI_Describe() unless you're only interested in the resultset
  * information because the statement will be parsed again when executed and thus
  * leading to unnecessary server round-trips and less performance
  *
@@ -5937,7 +6053,7 @@ boolean OCI_API OCI_BindSetCharsetForm
 
 /**
  * @brief
- * Get the allocaton mode of a bind handle
+ * Get the allocation mode of a bind handle
  *
  * @param bnd - Bind handle
  *
@@ -5946,7 +6062,7 @@ boolean OCI_API OCI_BindSetCharsetForm
  *  - OCI_BAM_EXTERNAL : bind variable is allocated by user code
  *  - OCI_BAM_INTERNAL : bind variable is allocated internally
  *
- * return the allocaton mode on success otherwise OCI_UNKNWON
+ * return the allocation mode on success otherwise OCI_UNKNOWN
  *
  */
 
@@ -6143,7 +6259,7 @@ OCI_EXPORT OCI_Resultset * OCI_API OCI_GetResultset
  *
  * @note
  * This function has been introduced for releasing big resultsets when the
- * application wants to keep the statement alive and doesn't know when it
+ * application wants to keep the statement alive and does not know when it
  * will be destroyed.
  *
  * @return
@@ -6610,7 +6726,7 @@ OCI_EXPORT boolean OCI_API OCI_ColumnGetCharUsed
  *    - Otherwise, it is not an IDENTITY column
  * - OCI_CPF_IS_GEN_ALWAYS:
  *    - If set, means that the value is "ALWAYS GENERATED"
- *    - Otherwise mens that the value is "GENERATED BY"
+ *    - Otherwise means that the value is "GENERATED BY"
  * - OCI_CPF_IS_GEN_BY_DEFAULT_ON_NULL:
  *    - If set, means that the value is generated by default on NULL
  * - OCI_CPF_IS_LPART:
@@ -9867,7 +9983,7 @@ OCI_EXPORT unsigned int OCI_API OCI_GetBindMode
  * OCI_SetBindAllocation() can be called before each binding call if needed, resulting having some bind allocated externally and other ones internally.
  *
  * @note
- * Refer to the section "Binding variables and arrays" of the documention about allocation mode as OCI_BAM_INTERNAL is not compatible with all bind calls
+ * Refer to the section "Binding variables and arrays" of the documentation about allocation mode as OCI_BAM_INTERNAL is not compatible with all bind calls
  * 
  */
 
@@ -10068,7 +10184,7 @@ OCI_EXPORT unsigned int OCI_API OCI_GetLongMaxSize
  * - OCI_LONG_IMPLICIT : LONGs are implicitly mapped to string type in the
  *   limits of VARCHAR2 size capacity
  *
- *  LONG RAWs can't be handled with OCI_LONG_IMPLICIT
+ *  LONG RAWs cannot be handled with OCI_LONG_IMPLICIT
  */
 
 OCI_EXPORT boolean OCI_API OCI_SetLongMode
@@ -10689,7 +10805,7 @@ OCI_EXPORT boolean OCI_API OCI_LobCopyFromFile
  *
  * @note
  * - A call to OCI_LobOpen is not necessary to manipulate a Lob.
- * - If a lob hasn't been opened explicitly, triggers are fired and
+ * - If a lob has not been opened explicitly, triggers are fired and
  *   indexes updated at every read/write/append operation
  *
  * @return
@@ -11101,7 +11217,7 @@ OCI_EXPORT boolean OCI_API OCI_FileExists
  *in
  * @note
  * - For local FILEs only
- * - Files fetched from resultset can't be assigned a new directory and name
+ * - Files fetched from resultset cannot be assigned a new directory and name
  *
  * @return
  * TRUE on success otherwise FALSE
@@ -11631,7 +11747,7 @@ OCI_EXPORT boolean OCI_API OCI_NumberSetContent
 * @param value  - pointer to value to set
 *
 * @note
-* Argument @param type can be :
+* Argument \p param type can be :
 *
 * - OCI_NUM_SHORT     : value is a pointer to a signed short
 * - OCI_NUM_USHORT    : value is a pointer to an unsigned short
@@ -15083,18 +15199,18 @@ OCI_EXPORT boolean OCI_ParseFmt
  * description of the select order only.
  * The command is not executed.
  * This call is only useful to retrieve information on the associated resultset
- * Call OCI_GetResultet() after OCI_Describe() to access to SELECT list
+ * Call OCI_GetResultset() after OCI_Describe() to access to SELECT list
  * information
  *
  * @note
  * This call prepares the statement (internal call to OCI_Prepare()) and ask
  * the Oracle server to describe the output SELECT list.
- * OCI_Execute() can be call after OCI_Desbribe() in order to execute the
+ * OCI_Execute() can be call after OCI_Describe() in order to execute the
  * statement, which means that the server will parse, and describe again the SQL
  * order.
  *
  * @warning
- * Do not use OCI_Desbribe() unless you're only interested in the resultset
+ * Do not use OCI_Describe() unless you're only interested in the resultset
  * information because the statement will be parsed again when executed and thus
  * leading to unnecessary server round-trips and less performance
  *
@@ -15634,7 +15750,7 @@ OCI_EXPORT void * OCI_API OCI_ThreadKeyGetValue
  */
 
 /**
- * @defgroup OcilibCApidirectPath Direct Path loading
+ * @defgroup OcilibCApiDirectPath Direct Path loading
  * @{
  *
  * OCILIB (from version 3.2.0) support the OCI direct Path API.
@@ -15854,7 +15970,7 @@ OCI_EXPORT boolean OCI_API OCI_DirPathSetEntry
  * - OCI_DPR_COMPLETE : load has been successful
  * - OCI_DPR_ERROR    : an error happened while loading data
  * - OCI_DPR_FULL     : the internal stream is full
- * - OCI_DPR_PARTIAL  : a column hasn't been fully filled yet
+ * - OCI_DPR_PARTIAL  : a column has not been fully filled yet
  * - OCI_DPR_EMPTY    : no data was found to convert
  *
  * @note
@@ -15889,7 +16005,7 @@ OCI_EXPORT unsigned int OCI_API OCI_DirPathConvert
  * - OCI_DPR_COMPLETE : conversion has been successful
  * - OCI_DPR_ERROR    : an error happened while converting data
  * - OCI_DPR_FULL     : the internal stream is full
- * - OCI_DPR_PARTIAL  : a column hasn't been fully filled yet
+ * - OCI_DPR_PARTIAL  : a column has not been fully filled yet
  * - OCI_DPR_EMPTY    : no data was found to load
  *
  * @note
@@ -16253,7 +16369,7 @@ OCI_EXPORT unsigned int OCI_API OCI_DirPathGetRowCount
  * This function called after :
  *
  * - OCI_DirPathConvert(), returns the number of converted rows
- * - OCI_DirPathload(), returns the number of loaded rows
+ * - OCI_DirPathLoad(), returns the number of loaded rows
  *
  */
 
@@ -16389,7 +16505,7 @@ OCI_EXPORT unsigned int OCI_API OCI_DirPathGetErrorRow
  *  - create, alter, drop, start, stop queues (OCI_QueueXXX calls)
  *
  * Note that the user connected to the database needs particular privileges to manipulate or
- * administrate queues (See Oracle Streams - Advanced Queuing User's Guide for more informations
+ * administrate queues (See Oracle Streams - Advanced Queuing User's Guide for more information
  * on these privileges)
  *
  * @par Example
@@ -18128,7 +18244,7 @@ OCI_EXPORT boolean OCI_API OCI_QueueTableDrop
  *  Oracle Streams - Advanced Queuing User's Guide for more details
  *
  * @warning
- * This feature is only available from ORacle 10gR2.
+ * This feature is only available from Oracle 10gR2.
  * This function does nothing and returns TRUE is the server version is < Oracle 10gR2
  *
  * @note
@@ -18271,7 +18387,7 @@ OCI_EXPORT boolean OCI_API OCI_QueueTableMigrate
  *
  * @ @warning Port usage
  * All notifications are using the same port. 
- * Port numbe can be either:
+ * Port number can be either:
  *   - determined automatically by Oracle client once the first subscription had been created and can be retrieved using OCI_SubscriptionGetPort()
  *   - Set by the parameter 'port' during the first call to OCI_SubscriptionRegister(). In this case later calls can provide same port number or 0
  * 
@@ -18598,7 +18714,7 @@ OCI_EXPORT OCI_Subscription * OCI_API OCI_EventGetSubscription
  * @param start_flag - Start flags
  * @param spfile     - Client-side spfile to start up the database (optional)
  *
- * Possible values for parameter sess_mode :
+ * Possible values for parameter session mode :
  * - OCI_SESSION_SYSDBA
  * - OCI_SESSION_SYSOPER
  *
@@ -18651,7 +18767,7 @@ OCI_EXPORT boolean OCI_API OCI_DatabaseStartup
  *
  *
  * @warning
- * Possible values for parameter sess_mode :
+ * Possible values for parameter session mode :
  * - OCI_SESSION_SYSDBA
  * - OCI_SESSION_SYSOPER
  *

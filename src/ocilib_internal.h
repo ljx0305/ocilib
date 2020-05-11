@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -236,6 +236,17 @@ boolean OCI_ConnectionClose
     OCI_Connection *con
 );
 
+unsigned int OCI_ConnectionGetMinSupportedVersion
+(
+    OCI_Connection *con
+);
+
+boolean OCI_ConnectionIsVersionSupported
+(
+    OCI_Connection *con,
+    unsigned int    version
+);
+
 /* --------------------------------------------------------------------------------------------- *
  * date.c
  * --------------------------------------------------------------------------------------------- */
@@ -334,7 +345,8 @@ void OCI_ErrorReset
 
 OCI_Error * OCI_ErrorGet
 (
-    boolean check
+    boolean check,
+    boolean reset
 );
 
 /* --------------------------------------------------------------------------------------------- *
@@ -665,6 +677,12 @@ boolean OCI_SetStringAttribute
     otext         **str,
     const otext    *value
 );
+
+char * OCI_GetEnvironmentVariable
+(
+    const char *name
+);
+
 
 /* --------------------------------------------------------------------------------------------- *
  * list.c
@@ -1143,6 +1161,7 @@ unsigned int OCI_StringAddToBuffer
     otext           *buffer,
     unsigned int     offset,
     const otext     *str,
+    unsigned int     length,
     boolean          check_quote
 );
 

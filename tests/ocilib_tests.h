@@ -3,20 +3,27 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include "gtest/gtest.h"
 
-#ifdef FALSE //_UNICODE
-#define OCI_CHARSET_WIDE
-using ostring = std::wstring;
+#include <array>
+#include <vector>
+#include <string>
+
+#ifdef _UNICODE
+    #define OCI_CHARSET_WIDE
+    #define TO_STRING std::to_wstring
+    using ostring = std::wstring;
 #else
-#define OCI_CHARSET_ANSI
-using ostring = std::string; 
+    #define OCI_CHARSET_ANSI
+    #define TO_STRING std::to_string
+    using ostring = std::string;
 #endif
 
 #define OCI_API __stdcall
 #include "../include/ocilib.h"
 
-#define DBS OTEXT("db")
+#define DBS OTEXT("")
 #define USR OTEXT("usr")
 #define PWD OTEXT("pwd")
+#define HOME OTEXT("")
 #define PWD_WRONG OTEXT("pwd_wrong")
 #define ARRAY_SIZE 10
 #define NLS_LANGUAGE_SUNDAY_NAME OTEXT("Dimanche")

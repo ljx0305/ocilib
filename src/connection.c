@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -455,7 +455,7 @@ void OCI_ConnectionLogonRegular
             OCI_StringReleaseOracleString(dbstr);
         }
 
-        /* set OCILIB's driver layer name attribute */
+        /* set OCILIB driver layer name attribute */
 
 #if OCI_VERSION_COMPILE >= OCI_11_1
 
@@ -559,6 +559,11 @@ void OCI_ConnectionLogonSessionPool
     int      dbsize_tag = 0;
     OraText *dbstr_ret  = NULL;
     ub4      dbsize_ret = 0;
+
+    if (con->mode & OCI_SESSION_SYSDBA)
+    {
+        sess_mode |= OCI_SESSGET_SYSDBA;
+    }
 
     if (!OCI_STRING_VALID(con->pool->user) && !OCI_STRING_VALID(con->pool->pwd))
     {
@@ -847,7 +852,7 @@ boolean OCI_ConnectionClose
 
     /* clear connection reference from current error object */
 
-    err = OCI_ErrorGet(FALSE);
+    err = OCI_ErrorGet(FALSE, FALSE);
 
     if (err && err->con == con)
     {
@@ -906,7 +911,6 @@ boolean OCI_ConnectionClose
     return TRUE;
 }
 
-
 /* --------------------------------------------------------------------------------------------- *
  * OCI_ConnectionCreateInternal
  * --------------------------------------------------------------------------------------------- */
@@ -935,6 +939,31 @@ OCI_Connection * OCI_ConnectionCreateInternal
     }
 
     return con;
+}
+
+/* --------------------------------------------------------------------------------------------- *
+ * OCI_ConnectionGetMinSupportedVersion
+ * --------------------------------------------------------------------------------------------- */
+
+unsigned int OCI_ConnectionGetMinSupportedVersion
+(
+    OCI_Connection *con
+)
+{
+    return (OCILib.version_runtime > con->ver_num) ? con->ver_num : OCILib.version_runtime;
+}
+
+/* --------------------------------------------------------------------------------------------- *
+ * OCI_ConnectionIsVersionSupported
+ * --------------------------------------------------------------------------------------------- */
+
+boolean OCI_ConnectionIsVersionSupported
+(
+    OCI_Connection *con,
+    unsigned int    version
+)
+{
+    return OCI_ConnectionGetMinSupportedVersion(con) >= version;
 }
 
 /* ********************************************************************************************* *
@@ -1533,9 +1562,9 @@ unsigned int OCI_API OCI_GetVersionConnection
     OCI_CALL_CONTEXT_SET_FROM_CONN(con)
 
     /* return the minimum supported version */
+  
+    OCI_RETVAL = OCI_ConnectionGetMinSupportedVersion(con);
 
-    OCI_RETVAL = (OCILib.version_runtime > con->ver_num) ? con->ver_num : OCILib.version_runtime;
-    
     OCI_CALL_EXIT()
 }
 
@@ -2340,7 +2369,7 @@ unsigned int OCI_API OCI_GetDefaultLobPrefetchSize
 
 #if OCI_VERSION_COMPILE >= OCI_11_1
 
-    if (con->ver_num >= OCI_11_1)
+    if (OCI_ConnectionIsVersionSupported(con, OCI_11_1))
     {
         OCI_GET_ATTRIB(OCI_HTYPE_SESSION, OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE, con->ses, &prefetch_size, NULL);
     }
@@ -2370,7 +2399,7 @@ boolean OCI_API OCI_SetDefaultLobPrefetchSize
 
 #if OCI_VERSION_COMPILE >= OCI_11_1
 
-    if (con->ver_num >= OCI_11_1)
+    if (OCI_ConnectionIsVersionSupported(con, OCI_11_1))
     {
         OCI_SET_ATTRIB(OCI_HTYPE_SESSION, OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE, con->ses, &prefetch_size, sizeof(prefetch_size));
     }
@@ -2403,7 +2432,7 @@ unsigned int OCI_API OCI_GetMaxCursors
 
 #if OCI_VERSION_COMPILE >= OCI_12_1
 
-    if (con->ver_num >= OCI_12_1)
+    if (OCI_ConnectionIsVersionSupported(con, OCI_12_1))
     {
         OCI_GET_ATTRIB(OCI_HTYPE_SESSION, OCI_ATTR_MAX_OPEN_CURSORS, con->ses, &max_cursors, NULL);
     }

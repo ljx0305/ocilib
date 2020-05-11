@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2019 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1311,7 +1311,7 @@ boolean OCI_API OCI_LobIsRemote
 
 #if OCI_VERSION_COMPILE >= OCI_12_2
 
-    if (lob->con->ver_num >= OCI_12_2)
+    if (OCI_ConnectionIsVersionSupported(lob->con, OCI_12_2))
     {
         OCI_GET_ATTRIB(OCI_DTYPE_LOB, OCI_ATTR_LOB_REMOTE, lob->handle, &OCI_RETVAL, sizeof(OCI_RETVAL))
     }
