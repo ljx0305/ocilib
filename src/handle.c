@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,385 +18,270 @@
  * limitations under the License.
  */
 
-#include "ocilib_internal.h"
+#include "handle.h"
 
-/* ********************************************************************************************* *
- *                            PUBLIC FUNCTIONS
- * ********************************************************************************************* */
+#include "macros.h"
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetEnvironment
+ * OcilibHandleGetEnvironment
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetEnvironment
+const void * OcilibHandleGetEnvironment
 (
     void
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_INITIALIZED()
-
-    OCI_RETVAL = OCILib.env;
-
-    OCI_CALL_EXIT()
+    GET_LIB_PROP(const void*, NULL, Env.env)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetContext
+ * OcilibHandleGetContext
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetContext
+const void * OcilibHandleGetContext
 (
     OCI_Connection *con
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-
-    OCI_RETVAL = con->cxt;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void*, NULL, OCI_IPC_CONNECTION, con, cxt)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetServer
+ * OcilibHandleGetServer
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetServer
+const void * OcilibHandleGetServer
 (
     OCI_Connection *con
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-
-    OCI_RETVAL = con->svr;
-
-    OCI_CALL_EXIT()
-
+    GET_PROP(const void *, NULL, OCI_IPC_CONNECTION, con, svr)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetError
+ * OcilibHandleGetError
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetError
+const void * OcilibHandleGetError
 (
     OCI_Connection *con
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-
-    OCI_RETVAL = con->err;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_CONNECTION, con, err)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetSession
+ * OcilibHandleGetSession
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetSession
+const void * OcilibHandleGetSession
 (
     OCI_Connection *con
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-
-    OCI_RETVAL = con->ses;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_CONNECTION, con, ses)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetTransaction
+ * OcilibHandleGetTransaction
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetTransaction
+const void * OcilibHandleGetTransaction
 (
     OCI_Transaction *trans
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_TRANSACTION, trans)
-
-    OCI_RETVAL = trans->htr;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_TRANSACTION, trans, htr)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetStatement
+ * OcilibHandleGetStatement
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetStatement
+const void * OcilibHandleGetStatement
 (
     OCI_Statement *stmt
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STATEMENT, stmt)
-
-    OCI_RETVAL = stmt->stmt;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_STATEMENT, stmt, stmt)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetLob
+ * OcilibHandleGetLob
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetLob
+const void * OcilibHandleGetLob
 (
     OCI_Lob *lob
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_LOB, lob)
-
-    OCI_RETVAL = lob->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_LOB, lob, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetFile
+ * OcilibHandleGetFile
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetFile
+const void * OcilibHandleGetFile
 (
     OCI_File *file
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_FILE, file)
-
-    OCI_RETVAL = file->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_FILE, file, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetDate
+ * OcilibHandleGetDate
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetDate
+const void * OcilibHandleGetDate
 (
     OCI_Date *date
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_DATE, date)
-
-    OCI_RETVAL = date->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_DATE, date, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetTimestamp
+ * OcilibHandleGetTimestamp
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetTimestamp
+const void * OcilibHandleGetTimestamp
 (
     OCI_Timestamp *tmsp
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_TIMESTAMP, tmsp)
-
-    OCI_RETVAL = tmsp->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_TIMESTAMP, tmsp, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetInterval
+ * OcilibHandleGetInterval
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetInterval
+const void * OcilibHandleGetInterval
 (
     OCI_Interval *itv
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_INTERVAL, itv)
-
-    OCI_RETVAL = itv->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_INTERVAL, itv, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetObject
+ * OcilibHandleGetObject
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetObject
+const void * OcilibHandleGetObject
 (
     OCI_Object *obj
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_OBJECT, obj)
-
-    OCI_RETVAL = obj->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_OBJECT, obj, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetColl
+ * OcilibHandleGetCollection
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetColl
+const void * OcilibHandleGetColl
 (
     OCI_Coll *coll
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_COLLECTION, coll)
-
-    OCI_RETVAL = coll->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_COLLECTION, coll, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetRef
+ * OcilibHandleGetReference
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetRef
+const void * OcilibHandleGetReference
 (
     OCI_Ref *ref
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_REF, ref)
-
-    OCI_RETVAL = ref->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_REF, ref, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetMutex
+ * OcilibHandleGetMutex
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetMutex
+const void * OcilibHandleGetMutex
 (
     OCI_Mutex *mutex
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_MUTEX, mutex)
-
-    OCI_RETVAL = mutex->handle;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_MUTEX, mutex, handle)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetThreadID
+ * OcilibHandleGetThreadID
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetThreadID
+const void * OcilibHandleGetThreadID
 (
     OCI_Thread *thread
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_THREAD, thread)
-
-    OCI_RETVAL = thread->id;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_THREAD, thread, id)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetThread
+ * OcilibHandleGetThread
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetThread
+const void * OcilibHandleGetThread
 (
     OCI_Thread *thread
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_THREAD, thread)
-
-    OCI_RETVAL = thread->handle;
-
-    OCI_CALL_EXIT()
- }
+    GET_PROP(const void *, NULL, OCI_IPC_THREAD, thread, handle)
+}
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetDirPathCtx
+ * OcilibHandleGetDirPathCtx
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetDirPathCtx
+const void * OcilibHandleGetDirPathCtx
 (
     OCI_DirPath *dp
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_DIRPATH, dp)
-
-    OCI_RETVAL = dp->ctx;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_DIRPATH, dp, ctx)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetDirPathColArray
+ * OcilibHandleGetDirPathColArray
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetDirPathColArray
+const void * OcilibHandleGetDirPathColArray
 (
     OCI_DirPath *dp
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_DIRPATH, dp)
-
-    OCI_RETVAL = dp->arr;
-
-    OCI_CALL_EXIT()
-
+    GET_PROP(const void *, NULL, OCI_IPC_DIRPATH, dp, arr)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetDirPathStream
+ * OcilibHandleGetDirPathStream
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetDirPathStream
+const void * OcilibHandleGetDirPathStream
 (
     OCI_DirPath *dp
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_DIRPATH, dp)
-
-    OCI_RETVAL = dp->strm;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_DIRPATH, dp, strm)
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_HandleGetSubscription
+ * OcilibHandleGetSubscription
  * --------------------------------------------------------------------------------------------- */
 
-const void * OCI_API OCI_HandleGetSubscription
+const void * OcilibHandleGetSubscription
 (
     OCI_Subscription *sub
 )
 {
-    OCI_CALL_ENTER(const void *, NULL)
-    OCI_CALL_CHECK_PTR(OCI_IPC_NOTIFY, sub)
-
-    OCI_RETVAL = sub->subhp;
-
-    OCI_CALL_EXIT()
+    GET_PROP(const void *, NULL, OCI_IPC_NOTIFY, sub, subhp)
 }
-

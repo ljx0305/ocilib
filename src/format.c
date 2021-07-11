@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,21 @@
  * limitations under the License.
  */
 
-#include "ocilib_internal.h"
+#include "format.h"
 
-/* ********************************************************************************************* *
- *                             PRIVATE FUNCTIONS
- * ********************************************************************************************* */
+#include "exception.h"
+#include "interval.h"
+#include "macros.h"
+#include "number.h"
+#include "reference.h"
+#include "stringutils.h"
+#include "timestamp.h"
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ParseSqlFmt
+ * OcilibParseSqlFmt
  * --------------------------------------------------------------------------------------------- */
 
-int OCI_ParseSqlFmt
+int OcilibFormatParseSql
 (
     OCI_Statement *stmt,
     otext         *buf,
@@ -36,13 +40,20 @@ int OCI_ParseSqlFmt
     va_list       *pargs
 )
 {
-    int size        = 0;
-    int len         = 0;
-    boolean quote   = FALSE;
-    otext *pb       = buf;
-    const otext *pf = format;
+    ENTER_FUNC
+    (
+        /* returns */ int, 0,
+        /* context */ OCI_IPC_STATEMENT, stmt
+    )
 
-    OCI_CHECK(NULL == format, 0);
+    int size = 0;
+    int          len   = 0;
+    boolean      quote = FALSE;
+    otext       *pb    = buf;
+    const otext *pf    = format;
+
+    CHECK_PTR(OCI_IPC_STATEMENT, stmt)
+    CHECK_PTR(OCI_IPC_STRING,    format)
 
     for (; *pf; pf++)
     {
@@ -80,7 +91,7 @@ int OCI_ParseSqlFmt
             {
                 const otext *str = (const otext *) va_arg(*pargs, const otext *);
 
-                if (OCI_STRING_VALID(str))
+                if (IS_STRING_VALID(str))
                 {
                     len = (int) ostrlen(str);
 
@@ -122,15 +133,18 @@ int OCI_ParseSqlFmt
                 {
                     if (date)
                     {
-                        len = osprintf(pb, OCI_SIZE_DATE,
-                                        OTEXT("to_date('%02i%02i%04i%02i%02i%02i',")
-                                        OTEXT("'DDMMYYYYHH24MISS')"),
-                                        date->handle->OCIDateDD,
-                                        date->handle->OCIDateMM,
-                                        date->handle->OCIDateYYYY,
-                                        date->handle->OCIDateTime.OCITimeHH,
-                                        date->handle->OCIDateTime.OCITimeMI,
-                                        date->handle->OCIDateTime.OCITimeSS);
+                        len = OcilibStringFormat
+                        (
+                            pb, OCI_SIZE_DATE,
+                           OTEXT("to_date('%02i%02i%04i%02i%02i%02i',")
+                           OTEXT("'DDMMYYYYHH24MISS')"),
+                           date->handle->OCIDateDD,
+                           date->handle->OCIDateMM,
+                           date->handle->OCIDateYYYY,
+                           date->handle->OCIDateTime.OCITimeHH,
+                           date->handle->OCIDateTime.OCITimeMI,
+                           date->handle->OCIDateTime.OCITimeSS
+                        );
                     }
                     else
                     {
@@ -154,16 +168,13 @@ int OCI_ParseSqlFmt
                     if (tmsp)
                     {
                         otext str_ff[12];
-                        int yy, mm, dd, hh, mi, ss, ff;
+                        int   yy = 0, mm = 0, dd = 0, hh = 0, mi = 0, ss = 0, ff = 0;
 
-                        yy = mm = dd = mi = hh = ss = ff = 0;
-
-                        OCI_TimestampGetDateTime(tmsp, &yy, &mm, &dd,
-                                                 &hh, &mi, &ss, &ff);
+                        CHECK(OcilibTimestampGetDateTime(tmsp, &yy, &mm, &dd,  &hh, &mi, &ss, &ff))
 
                         if (ff > 0)
                         {
-                            osprintf(str_ff, (int) osizeof(str_ff)- 1, OTEXT("%i"), ff);
+                            OcilibStringFormat(str_ff, (int) osizeof(str_ff)- 1, OTEXT("%i"), ff);
                         }
                         else
                         {
@@ -172,10 +183,17 @@ int OCI_ParseSqlFmt
 
                         str_ff[2] = 0;
 
-                        len = osprintf(pb, OCI_SIZE_TIMESTAMP,
-                                        OTEXT("to_timestamp('%02i%02i%04i%02i%02i%02i%s',")
-                                        OTEXT("'DDMMYYYYHH24MISSFF')"),
-                                        dd, mm, yy, hh, mi, ss, str_ff);
+                        len = OcilibStringFormat
+                        (
+                            pb, 
+                            OCI_SIZE_TIMESTAMP,
+                        #if defined(OCI_CHARSET_WIDE) && !defined(_WINDOWS)
+                            OTEXT("to_timestamp('%02i%02i%04i%02i%02i%02i%ls', 'DDMMYYYYHH24MISSFF')"),
+                        #else
+                            OTEXT("to_timestamp('%02i%02i%04i%02i%02i%02i%s', 'DDMMYYYYHH24MISSFF')"),
+                        #endif                            
+                            dd, mm, yy, hh, mi, ss, str_ff
+                        );
                     }
                     else
                     {
@@ -200,7 +218,7 @@ int OCI_ParseSqlFmt
 
                 if (itv)
                 {
-                    OCI_IntervalToText(itv, 3, 3, (int) osizeof(temp)- 1, temp);
+                    CHECK(OcilibIntervalToString(itv, 3, 3, (int) osizeof(temp)- 1, temp))
 
                     len = (int) ostrlen(temp);
 
@@ -227,7 +245,8 @@ int OCI_ParseSqlFmt
 
                 temp[0] = 0;
 
-                len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%i"), va_arg(*pargs, int));
+                len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1, 
+                                              OTEXT("%i"), va_arg(*pargs, int));
 
                 if (buf && (len > 0))
                 {
@@ -242,7 +261,8 @@ int OCI_ParseSqlFmt
 
                 temp[0] = 0;
 
-                len = (int) osprintf(temp, (int)  osizeof(temp) - 1, OTEXT("%u"), va_arg(*pargs, unsigned int));
+                len = (int)OcilibStringFormat(temp, (int)  osizeof(temp) - 1, 
+                                              OTEXT("%u"), va_arg(*pargs, unsigned int));
 
                 if (buf && (len > 0))
                 {
@@ -261,11 +281,13 @@ int OCI_ParseSqlFmt
 
                 if (OTEXT('i') == *pf)
                 {
-                    len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%lld"), va_arg(*pargs, big_int));
+                    len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1,
+                                                  OTEXT("%lld"), va_arg(*pargs, big_int));
                 }
                 else if (OTEXT('u') == *pf)
                 {
-                    len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%llu"), va_arg(*pargs, big_uint));
+                    len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1, 
+                                                  OTEXT("%llu"), va_arg(*pargs, big_uint));
                 }
                 else
                 {
@@ -291,12 +313,14 @@ int OCI_ParseSqlFmt
 
                 if (OTEXT('i') == *pf)
                 {
-                    len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%hd"), va_arg(*pargs, int));
+                    len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1, 
+                                                  OTEXT("%hd"), va_arg(*pargs, int));
                 }
                 else if (OTEXT('u') == *pf)
                 {
-                    len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%hu"), va_arg(*pargs, unsigned int));
-                }           
+                    len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1,
+                                                  OTEXT("%hu"), va_arg(*pargs, unsigned int));
+                }
                 else
                 {
                     len = 0;
@@ -315,7 +339,8 @@ int OCI_ParseSqlFmt
 
                 temp[0] = 0;
 
-                len = (int) osprintf(temp, (int) osizeof(temp) - 1, OTEXT("%lf"), va_arg(*pargs, double));
+                len = (int)OcilibStringFormat(temp, (int) osizeof(temp) - 1, 
+                                              OTEXT("%lf"), va_arg(*pargs, double));
 
                 if (buf && (len > 0))
                 {
@@ -330,7 +355,7 @@ int OCI_ParseSqlFmt
 
                 temp[0] = 0;
 
-                OCI_NumberToText(va_arg(*pargs, OCI_Number*), NULL, 128, temp);
+                CHECK(OcilibNumberToString(va_arg(*pargs, OCI_Number*), NULL, 128, temp))
                 len = (int) ostrlen(temp);
 
                 if (buf && (len > 0))
@@ -350,7 +375,7 @@ int OCI_ParseSqlFmt
 
                 if (ref)
                 {
-                    OCI_RefToText(ref, (unsigned int) osizeof(temp) - 1, temp);
+                    CHECK(OcilibReferenceToString( ref, (unsigned int) osizeof(temp) - 1, temp))
 
                     len = (int) ostrlen(temp);
 
@@ -373,9 +398,9 @@ int OCI_ParseSqlFmt
             }
             default:
             {
-                OCI_ExceptionParsingToken(stmt->con, stmt, *pf);
+                THROW(OcilibExceptionParsingToken, *pf)
 
-                return 0;
+                break;
             }
         }
 
@@ -392,5 +417,7 @@ int OCI_ParseSqlFmt
         *pb = 0;
     }
 
-    return size;
+    SET_RETVAL(size)
+
+    EXIT_FUNC()
 }

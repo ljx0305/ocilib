@@ -5,26 +5,34 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Release - ANSI|Win32">
+      <Configuration>Release - ANSI</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - ANSI|x64">
+      <Configuration>Release - ANSI</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - UNICODE|Win32">
+      <Configuration>Release - UNICODE</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Release - UNICODE|x64">
+      <Configuration>Release - UNICODE</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{67e42eca-64d1-4e39-916e-919e2dc991ac}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -32,41 +40,125 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - UNICODE|x64'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - ANSI|x64'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - UNICODE|Win32'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - ANSI|Win32'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>..\src;..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="connection.cpp">
+    <ClCompile Include="..\src\agent.c" />
+    <ClCompile Include="..\src\array.c" />
+    <ClCompile Include="..\src\bind.c" />
+    <ClCompile Include="..\src\callback.c" />
+    <ClCompile Include="..\src\collection.c" />
+    <ClCompile Include="..\src\column.c" />
+    <ClCompile Include="..\src\connection.c" />
+    <ClCompile Include="..\src\database.c" />
+    <ClCompile Include="..\src\date.c" />
+    <ClCompile Include="..\src\define.c" />
+    <ClCompile Include="..\src\dequeue.c" />
+    <ClCompile Include="..\src\dirpath.c" />
+    <ClCompile Include="..\src\element.c" />
+    <ClCompile Include="..\src\enqueue.c" />
+    <ClCompile Include="..\src\environment.c" />
+    <ClCompile Include="..\src\error.c" />
+    <ClCompile Include="..\src\event.c" />
+    <ClCompile Include="..\src\exception.c" />
+    <ClCompile Include="..\src\file.c" />
+    <ClCompile Include="..\src\format.c" />
+    <ClCompile Include="..\src\handle.c" />
+    <ClCompile Include="..\src\hash.c" />
+    <ClCompile Include="..\src\helpers.c" />
+    <ClCompile Include="..\src\interval.c" />
+    <ClCompile Include="..\src\iterator.c" />
+    <ClCompile Include="..\src\list.c" />
+    <ClCompile Include="..\src\lob.c" />
+    <ClCompile Include="..\src\long.c" />
+    <ClCompile Include="..\src\memory.c" />
+    <ClCompile Include="..\src\message.c" />
+    <ClCompile Include="..\src\mutex.c" />
+    <ClCompile Include="..\src\number.c" />
+    <ClCompile Include="..\src\object.c" />
+    <ClCompile Include="..\src\ocilib.c" />
+    <ClCompile Include="..\src\pool.c" />
+    <ClCompile Include="..\src\queue.c" />
+    <ClCompile Include="..\src\reference.c" />
+    <ClCompile Include="..\src\resultset.c" />
+    <ClCompile Include="..\src\statement.c" />
+    <ClCompile Include="..\src\stringutils.c" />
+    <ClCompile Include="..\src\subscription.c" />
+    <ClCompile Include="..\src\thread.c" />
+    <ClCompile Include="..\src\threadkey.c" />
+    <ClCompile Include="..\src\timestamp.c" />
+    <ClCompile Include="..\src\transaction.c" />
+    <ClCompile Include="..\src\typeinfo.c" />
+    <ClCompile Include="TestCursor.cpp" />
+    <ClCompile Include="TestArray.cpp" />
+    <ClCompile Include="TestCollection.cpp" />
+    <ClCompile Include="TestConnection.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release - UNICODE|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release - ANSI|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="date.cpp" />
-    <ClCompile Include="interval.cpp" />
-    <ClCompile Include="lob.cpp" />
-    <ClCompile Include="number.cpp" />
-    <ClCompile Include="ref.cpp" />
-    <ClCompile Include="ReportedIssues.cpp" />
-    <ClCompile Include="timestamp.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ClCompile Include="TestDate.cpp" />
+    <ClCompile Include="TestDescribe.cpp" />
+    <ClCompile Include="TestImplicitResultset.cpp" />
+    <ClCompile Include="TestInterval.cpp" />
+    <ClCompile Include="TestLob.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestNotifications.cpp" />
+    <ClCompile Include="TestNumber.cpp" />
+    <ClCompile Include="TestObject.cpp" />
+    <ClCompile Include="TestObjectInheritance.cpp" />
+    <ClCompile Include="TestPlSqlTables.cpp" />
+    <ClCompile Include="TestPool.cpp" />
+    <ClCompile Include="TestQueue.cpp" />
+    <ClCompile Include="TestReference.cpp" />
+    <ClCompile Include="TestReportedIssuesCApi.cpp" />
+    <ClCompile Include="TestREportedIssuesCppApi.cpp" />
+    <ClCompile Include="TestReturningInto.cpp" />
+    <ClCompile Include="TestRowId.cpp" />
+    <ClCompile Include="TestScrollabeCursor.cpp" />
+    <ClCompile Include="TestThread.cpp" />
+    <ClCompile Include="TestThreadKey.cpp" />
+    <ClCompile Include="TestTimestamp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ocilib_tests.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project=".\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.0\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets" Condition="Exists('.\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.0\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" />
+    <Import Project="packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets" Condition="Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -78,25 +170,26 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>X64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <PreprocessorDefinitions>X64;__DEBUG;_CONSOLE;OCI_CHARSET_ANSI;OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - UNICODE|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE; OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -105,14 +198,49 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - ANSI|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE; OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - UNICODE|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;OCI_CHARSET_WIDE;OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - ANSI|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;OCI_CHARSET_ANSI;OCI_IMPORT_RUNTIME;OCI_LIB_LOCAL_COMPILE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,6 +253,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('.\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.0\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" Text="$([System.String]::Format('$(ErrorText)', '.\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.0\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.3\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets'))" />
   </Target>
 </Project>

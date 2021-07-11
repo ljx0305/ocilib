@@ -1,4 +1,4 @@
-# Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+# Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
 #  
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without 
@@ -14,11 +14,11 @@ AC_INIT(ocilib, m4_esyscmd([tr -d '\n' < VERSION]))
 
 m4_pattern_allow([LT_MAJOR])
 
-AC_CONFIG_SRCDIR([src/library.c])
+AC_CONFIG_SRCDIR([src/ocilib.c])
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE()
+AM_INIT_AUTOMAKE([nostdinc])
 
 LT_INIT()
 
@@ -28,6 +28,7 @@ AC_PROG_INSTALL()
 AC_LIBTOOL_DLOPEN()
 AC_PROG_LIBTOOL()
 
+OCILIB_COMPILER_FLAGS()
 OCILIB_PATH()
 OCILIB_VERSION()
 OCILIB_OPTIONS()
@@ -41,6 +42,9 @@ AC_CONFIG_FILES([
    doc/html/Makefile
    demo/Makefile
    demo/Makefile_demo
+   demo/Makefile_demo_cpp
+   tests/Makefile
+   tests/Makefile_tests
  ])
 
 AC_OUTPUT()

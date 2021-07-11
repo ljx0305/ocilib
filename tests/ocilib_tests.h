@@ -1,32 +1,46 @@
 #pragma once
 
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+
 #include "gtest/gtest.h"
 
 #include <array>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <atomic>
 
-#ifdef _UNICODE
-    #define OCI_CHARSET_WIDE
+#include <ocilib.hpp>
+
+#ifdef OCI_CHARSET_WIDE
     #define TO_STRING std::to_wstring
     using ostring = std::wstring;
+    #define osprintf wsprintf
+    #define ostrlen wcslen
 #else
-    #define OCI_CHARSET_ANSI
     #define TO_STRING std::to_string
     using ostring = std::string;
+    #define osprintf sprintf
+    #define ostrlen strlen
 #endif
 
-#define OCI_API __stdcall
+#ifdef _MSC_VER
+#  define OCI_API __stdcall
+#endif
+
 #include "../include/ocilib.h"
 
-#define DBS OTEXT("")
+#define DBSNAME OTEXT("db19c")
+#define DBS OTEXT("localhost:1521/db19c")
 #define USR OTEXT("usr")
 #define PWD OTEXT("pwd")
+#define SYS_USR OTEXT("sys")
+#define SYS_PWD OTEXT("sys")
 #define HOME OTEXT("")
 #define PWD_WRONG OTEXT("pwd_wrong")
 #define ARRAY_SIZE 10
-#define NLS_LANGUAGE_SUNDAY_NAME OTEXT("Dimanche")
+#define STRING_SIZE 20
+#define NLS_LANGUAGE_SUNDAY_NAME OTEXT("Sunday")
 
 #include "mutex"
 
@@ -48,17 +62,16 @@ struct Context
 };
 
 
-#ifdef _MSC_VER
-
-#if defined(OCI_CHARSET_WIDE)
-#pragma comment(lib, "../lib64/ocilibw.lib")
-#elif defined(OCI_CHARSET_ANSI)
-#pragma comment(lib, "../lib64/ociliba.lib")
-#endif
-#endif
-
 #ifndef _WINDOWS
 #include <unistd.h>
 #define Sleep(x) usleep(x * 1000);
 #endif
 
+void ExecDML(ostring dml);
+
+inline ostring ToUpper(ostring str)
+{
+    std::for_each(std::begin(str), std::end(str), [](otext& c) { c = static_cast<otext>(::towupper(c)); });
+
+    return str;
+}

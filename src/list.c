@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,162 +18,204 @@
  * limitations under the License.
  */
 
-#include "ocilib_internal.h"
+#include "list.h"
 
+#include "macros.h"
+#include "memory.h"
+#include "mutex.h"
 
-#define LIST_FOR_EACH(exp) \
-\
-    if (list)                               \
-    {                                       \
-        OCI_Item *item = NULL;              \
-        if (list->mutex )                   \
-        {                                   \
-            OCI_MutexAcquire(list->mutex);  \
-        }                                   \
-        item = list->head;                  \
-        while (item)                        \
-        {                                   \
-            exp;                            \
-            item = item->next;              \
-        }                                   \
-        if (list->mutex)                    \
-        {                                   \
-            OCI_MutexRelease(list->mutex);  \
-        }                                   \
-    }                                       \
+#define ACQUIRE_LOCK()                          \
+                                                \
+    if (NULL != list->mutex)                    \
+    {                                           \
+        CHECK(OcilibMutexAcquire(list->mutex))  \
+    }
 
+#define RELEASE_LOCK()                          \
+                                                \
+    if (NULL != list->mutex)                    \
+    {                                           \
+        CHECK(OcilibMutexRelease(list->mutex)) \
+    }
 
-/* ********************************************************************************************* *
- *                             LOCAL FUNCTIONS
- * ********************************************************************************************* */
+#define LIST_FOR_EACH(exp)     \
+                               \
+    if (list)                  \
+    {                          \
+        OCI_Item *item = NULL; \
+        ACQUIRE_LOCK()         \
+        item = list->head;     \
+        while (item)           \
+        {                      \
+            exp;               \
+            item = item->next; \
+        }                      \
+        RELEASE_LOCK()         \
+    }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListCreateItem
+ * OcilibListCreateItem
  * --------------------------------------------------------------------------------------------- */
 
-OCI_Item * OCI_ListCreateItem
+static OCI_Item * OcilibListCreateItem
 (
     int type,
     int size
 )
 {
-    OCI_Item *item = NULL;
+    ENTER_FUNC
+    (
+        /* returns */ OCI_Item*, NULL,
+        /* context */ OCI_IPC_VOID, &Env
+    )
+
+    OCI_Item* item = NULL;
+
+    CHECK_BOUND(size, 0, INT_MAX)
 
     /* allocate list item entry */
 
-    item = (OCI_Item *) OCI_MemAlloc(OCI_IPC_LIST_ITEM, sizeof(*item), (size_t) 1, TRUE);
+    item =  (OCI_Item *)OcilibMemoryAlloc(OCI_IPC_LIST_ITEM,
+                                          sizeof(*item),
+                                          (size_t) 1, TRUE);
 
-    if (item)
-    {
-        /* allocate item data buffer */
+    CHECK_NULL(item)
 
-        item->data = (void *) OCI_MemAlloc(type, (size_t) size, (size_t) 1, TRUE);
+    /* allocate item data buffer */
 
-        if (!item->data)
+    item->data = (void *)OcilibMemoryAlloc(type, (size_t) size,
+                                           (size_t) 1, TRUE);
+
+    CHECK_NULL(item->data)
+
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (FAILURE)
         {
-            OCI_FREE(item)
-        }
-    }
+            if (NULL != item)
+            {
+                if (NULL != item->data)
+                {
+                    FREE(item->data)
+                }
 
-    return item;
+                FREE(item)
+            }
+        }
+
+        SET_RETVAL(item)
+    )
 }
 
-/* ********************************************************************************************* *
- *                             PRIVATE FUNCTIONS
- * ********************************************************************************************* */
-
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListCreate
+ * OcilibListCreate
  * --------------------------------------------------------------------------------------------- */
 
-OCI_List * OCI_ListCreate
+OCI_List* OcilibListCreate
 (
     int type
 )
 {
-    OCI_List *list = NULL;
+    ENTER_FUNC_NO_CONTEXT
+    (
+        /* returns */ OCI_List*, NULL
+    )
 
     /* allocate list */
 
-    list = (OCI_List *) OCI_MemAlloc(OCI_IPC_LIST, sizeof(*list), (size_t) 1, TRUE);
+    OCI_List *list = (OCI_List *)OcilibMemoryAlloc(OCI_IPC_LIST,
+                                                   sizeof(*list),
+                                                   (size_t) 1, TRUE);
+
+    CHECK_NULL(list)
 
     /* create a mutex on multi threaded environments */
 
-    if (list)
+    list->type = type;
+
+    if (LIB_THREADED)
     {
-        list->type = type;
-
-        if (OCI_LIB_THREADED)
-        {
-            list->mutex = OCI_MutexCreateInternal();
-
-            if (!list->mutex)
-            {
-                OCI_FREE(list)
-            }
-        }
+        list->mutex = OcilibMutexCreateInternal();
     }
 
-    return list;
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (FAILURE)
+        {
+            FREE(list)
+        }
+
+        SET_RETVAL(list)
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListFree
+ * OcilibListFree
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListFree
+boolean OcilibListFree
 (
     OCI_List *list
 )
 {
-    boolean res = TRUE;
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
 
-    OCI_CHECK(NULL == list,  FALSE)
+    CHECK_PTR(OCI_IPC_LIST, list)
 
-    OCI_ListClear(list);
+    OcilibListClear(list);
 
-    if (list->mutex)
+    if (NULL!= list->mutex)
     {
-        res = OCI_MutexFree(list->mutex);
+        OcilibMutexFree(list->mutex);
     }
 
-    OCI_FREE(list)
+    OcilibErrorResetSource(NULL, list);
 
-    return res;
+    FREE(list)
+
+    SET_SUCCESS()
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListAppend
+ * OcilibListAppend
  * --------------------------------------------------------------------------------------------- */
 
-void * OCI_ListAppend
+void * OcilibListAppend
 (
     OCI_List *list,
     int       size
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ void*, NULL,
+        /* context */ OCI_IPC_LIST, list
+    )
+
     OCI_Item *item = NULL;
     OCI_Item *temp = NULL;
 
-    OCI_CHECK(NULL == list,  NULL);
+    CHECK_PTR(OCI_IPC_LIST, list)
 
-    item = OCI_ListCreateItem(list->type, size);
+    ACQUIRE_LOCK()
 
-    OCI_CHECK(NULL == item, FALSE)
-
-    if (list->mutex)
-    {
-        OCI_MutexAcquire(list->mutex);
-    }
+    item = OcilibListCreateItem(list->type, size);
+    CHECK_NULL(item)
 
     temp = list->head;
 
-    while (temp && temp->next)
+    while (NULL != temp && NULL != temp->next)
     {
         temp = temp->next;
     }
 
-    if (temp)
+    if (NULL != temp)
     {
         temp->next = item;
     }
@@ -184,127 +226,148 @@ void * OCI_ListAppend
 
     list->count++;
 
-    if (list->mutex)
-    {
-        OCI_MutexRelease(list->mutex);
-    }
+    RELEASE_LOCK()
 
-    return item->data;
+    SET_RETVAL(item->data)
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListClear
+ * OcilibListClear
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListClear
+boolean OcilibListClear
 (
     OCI_List *list
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
+
     OCI_Item *item = NULL;
 
-    OCI_CHECK(NULL == list,  FALSE)
+    CHECK_PTR(OCI_IPC_LIST, list)
 
-    if (list->mutex)
-    {
-        OCI_MutexAcquire(list->mutex);
-    }
+    ACQUIRE_LOCK()
 
     /* walk along the list to free item's buffer */
 
     item = list->head;
 
-    while (item)
+    while (NULL != item)
     {
         OCI_Item *temp = item;
-        
+
         item = item->next;
 
         /* free data */
 
-        OCI_FREE(temp->data)
-        OCI_FREE(temp)
+        FREE(temp->data)
+        FREE(temp)
     }
 
     list->head  = NULL;
     list->count = 0;
 
-    if (list->mutex)
-    {
-        OCI_MutexRelease(list->mutex);
-    }
+    RELEASE_LOCK()
 
-    return TRUE;
+    SET_SUCCESS()
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListForEach
+ * OcilibListForEach
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListForEach
+boolean OcilibListForEach
 (
     OCI_List          *list,
     POCI_LIST_FOR_EACH proc
 )
 {
-    OCI_CHECK(NULL == list, FALSE)
-    OCI_CHECK(NULL == proc, FALSE)
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
+
+    CHECK_PTR(OCI_IPC_LIST, list)
+    CHECK_PTR(OCI_IPC_VOID, proc)
 
     LIST_FOR_EACH(proc(item->data))
 
-    return TRUE;
+    SET_SUCCESS()
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
-* OCI_ListForEachWithParam
+* OcilibListForEachWithParam
 * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListForEachWithParam
+boolean OcilibListForEachWithParam
 (
-    OCI_List          *list,
-    void              *param,
+    OCI_List                     *list,
+    void                         *param,
     POCI_LIST_FOR_EACH_WITH_PARAM proc
 )
 {
-    OCI_CHECK(NULL == list, FALSE)
-    OCI_CHECK(NULL == proc, FALSE)
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
+
+    CHECK_PTR(OCI_IPC_LIST, list)
+    CHECK_PTR(OCI_IPC_VOID, proc)
 
     LIST_FOR_EACH(proc(item->data, param))
 
-    return TRUE;
+    SET_SUCCESS()
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_ListRemove
+ * OcilibListRemove
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListRemove
+boolean OcilibListRemove
 (
     OCI_List *list,
     void     *data
 )
 {
-    boolean   found = FALSE;
-    OCI_Item *item  = NULL;
-    OCI_Item *temp  = NULL;
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
 
-    OCI_CHECK(NULL == list,  FALSE)
-    OCI_CHECK(NULL == data, FALSE)
+    OCI_Item *item = NULL;
+    OCI_Item *temp = NULL;
 
-    if (list->mutex)
-    {
-        OCI_MutexAcquire(list->mutex);
-    }
+    CHECK_PTR(OCI_IPC_LIST, list)
+    CHECK_PTR(OCI_IPC_VOID, data)
+
+    ACQUIRE_LOCK()
 
     item = list->head;
 
-    while (item)
+    boolean found = FALSE;
+
+    while (NULL != item)
     {
         if (item->data == data)
         {
             found = TRUE;
 
-            if (temp)
+            if (NULL != temp)
             {
                 temp->next = item->next;
             }
@@ -317,7 +380,7 @@ boolean OCI_ListRemove
                 list->head = item->next;
             }
 
-            OCI_FREE(item)
+            FREE(item)
 
             break;
         }
@@ -331,64 +394,76 @@ boolean OCI_ListRemove
         list->count--;
     }
 
-    if (list->mutex)
-    {
-        OCI_MutexRelease(list->mutex);
-    }
+    RELEASE_LOCK()
 
-    return TRUE;
+    SET_RETVAL(found)
+
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
-* OCI_ListExists
+* OcilibListExists
 * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_ListExists
+boolean OcilibListExists
 (
     OCI_List *list,
     void     *data
 )
 {
-    boolean found = FALSE;
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_LIST, list
+    )
 
-    OCI_CHECK(NULL == list, FALSE)
+    CHECK_PTR(OCI_IPC_LIST, list)
+    CHECK_PTR(OCI_IPC_VOID, data)
 
     LIST_FOR_EACH
     (
         if (item->data == data)
         {
-            found = TRUE;
+            SET_SUCCESS()
             break;
         }
     )
 
-    return found;
+    EXIT_FUNC()
 }
 
 /* --------------------------------------------------------------------------------------------- *
-* OCI_ListFind
+* OcilibListFind
 * --------------------------------------------------------------------------------------------- */
 
-void * OCI_ListFind
+void * OcilibListFind
 (
-    OCI_List        *list,
-    POCI_LIST_FIND   proc,
-    void            *param
+    OCI_List      *list,
+    POCI_LIST_FIND proc,
+    void          *param
 )
 {
-    void * result = NULL;
+    ENTER_FUNC
+    (
+        /* returns */ void *, NULL,
+        /* context */ OCI_IPC_LIST, list
+    )
 
-    OCI_CHECK(NULL == list, NULL)
-    OCI_CHECK(NULL == proc, NULL)
+    CHECK_PTR(OCI_IPC_LIST,  list)
+    CHECK_PTR(OCI_IPC_VOID, param)
+
+    void* data = NULL;
 
     LIST_FOR_EACH
     (
         if (proc(item->data, param))
         {
-            result = item->data;
+            data = item->data;
             break;
         }
     )
 
-    return result;
+    SET_RETVAL(data)
+
+    EXIT_FUNC()
 }

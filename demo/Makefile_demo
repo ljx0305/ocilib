@@ -1,4 +1,4 @@
-# Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+# Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
 #  
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without 
@@ -10,14 +10,14 @@
 
 INCS =  -I/usr/local/include
 CFLAGS = -DOCI_IMPORT_LINKAGE -DOCI_CHARSET_ANSI
-LDFLAGS= -L/data/oracle/10g/lib -lclntsh  -L/usr/local/lib -locilib
+LDFLAGS= -L/home/vincent/dev/oracle/instantclient_19_9/ -lclntsh  -L/usr/local/lib -locilib
 CC = gcc
 SRCS = ocilib_demo.c
 OBJS = $(SRCS:.c=.o)
 
 all: ocilib_demo
 
-demo: $(OBJS)
+ocilib_demo: $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
 .c.o:

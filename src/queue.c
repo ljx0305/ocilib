@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,36 @@
  * limitations under the License.
  */
 
-#include "ocilib_internal.h"
+#include "queue.h"
 
-/* ********************************************************************************************* *
- *                             PRIVATE VARIABLES
- * ********************************************************************************************* */
+#include "macros.h"
+#include "statement.h"
 
-static unsigned int DeliveryModeValues[] = { OCI_APM_BUFFERED, OCI_APM_PERSISTENT, OCI_APM_ALL };
-static unsigned int GroupingModeValues[] = { OCI_AGM_NONE, OCI_AGM_TRANSACTIONNAL };
-static unsigned int QueueTypeValues[   ] = { OCI_AQT_NORMAL, OCI_AQT_EXCEPTION, OCI_AQT_NON_PERSISTENT };
+static unsigned int DeliveryModeValues[] =
+{
+    OCI_APM_BUFFERED,
+    OCI_APM_PERSISTENT,
+    OCI_APM_ALL
+};
 
-/* ********************************************************************************************* *
- *                            PUBLIC FUNCTIONS
- * ********************************************************************************************* */
+static unsigned int GroupingModeValues[] =
+{
+    OCI_AGM_NONE,
+    OCI_AGM_TRANSACTIONNAL
+};
+
+static unsigned int QueueTypeValues[] =
+{
+    OCI_AQT_NORMAL,
+    OCI_AQT_EXCEPTION,
+    OCI_AQT_NON_PERSISTENT
+};
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueCreate
+   OcilibQueueCreate
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueCreate
+boolean OcilibQueueCreate
 (
     OCI_Connection *con,
     const otext    *queue_name,
@@ -49,66 +60,75 @@ boolean OCI_API OCI_QueueCreate
     const otext    *comment
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_name)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CHECK_ENUM_VALUE(con, NULL, queue_type, QueueTypeValues, OTEXT("Queue type"))
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_name)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
+    CHECK_ENUM_VALUE(queue_type, QueueTypeValues, OTEXT("Queue type"))
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("DECLARE ")
-                            OTEXT("    v_dependency_tracking BOOLEAN  := FALSE; ")
-                            OTEXT("BEGIN ")
-                            OTEXT("    IF (:dependency_tracking = 1) then ")
-                            OTEXT("        v_dependency_tracking := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    DBMS_AQADM.CREATE_QUEUE ")
-                            OTEXT("    (")
-                            OTEXT("        queue_name           => :queue_name, ")
-                            OTEXT("        queue_table          => :queue_table, ")
-                            OTEXT("        queue_type           => :queue_type, ")
-                            OTEXT("        max_retries          => :max_retries, ")
-                            OTEXT("        retry_delay          => :retry_delay, ")
-                            OTEXT("        retention_time       => :retention_time, ")
-                            OTEXT("        dependency_tracking  => v_dependency_tracking, ")
-                            OTEXT("        comment              => :comment ")
-                            OTEXT("    ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_dependency_tracking BOOLEAN  := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    IF (:dependency_tracking = 1) then ")
+            OTEXT("        v_dependency_tracking := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.CREATE_QUEUE ")
+            OTEXT("    (")
+            OTEXT("        queue_name           => :queue_name, ")
+            OTEXT("        queue_table          => :queue_table, ")
+            OTEXT("        queue_type           => :queue_type, ")
+            OTEXT("        max_retries          => :max_retries, ")
+            OTEXT("        retry_delay          => :retry_delay, ")
+            OTEXT("        retention_time       => :retention_time, ")
+            OTEXT("        dependency_tracking  => v_dependency_tracking, ")
+            OTEXT("        comment              => :comment ")
+            OTEXT("    ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_name"), (otext *) queue_name, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *)  queue_table, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":queue_type"),  &queue_type);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":max_retries"),  &max_retries);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":retry_delay"),  &retry_delay);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":retention_time"),  &retention_time);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":dependency_tracking"),  &dependency_tracking);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":comment"), (otext *) (comment ? comment : OCI_STRING_EMPTY), 0);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_name"), (otext *) queue_name, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *)  queue_table, 0))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":queue_type"),  &queue_type))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":max_retries"),  &max_retries))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":retry_delay"),  &retry_delay))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":retention_time"),  &retention_time))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":dependency_tracking"),  &dependency_tracking))
+    CHECK(OcilibStatementBindString(st, OTEXT(":comment"), (otext *) (comment ? comment : OCI_STRING_EMPTY), 0))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueAlter
+ * OcilibQueueAlter
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueAlter
+boolean OcilibQueueAlter
 (
     OCI_Connection *con,
     const otext    *queue_name,
@@ -118,97 +138,115 @@ boolean OCI_API OCI_QueueAlter
     const otext    *comment
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_name)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_name)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                    (
-                        st,
-                        OTEXT("BEGIN ")
-                        OTEXT("    DBMS_AQADM.ALTER_QUEUE ")
-                        OTEXT("    (")
-                        OTEXT("        queue_name           => :queue_name, ")
-                        OTEXT("        max_retries          => :max_retries, ")
-                        OTEXT("        retry_delay          => :retry_delay, ")
-                        OTEXT("        retention_time       => :retention_time, ")
-                        OTEXT("        comment              => :comment ")
-                        OTEXT("    ); ")
-                        OTEXT("END; ")
-                    );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("BEGIN ")
+            OTEXT("    DBMS_AQADM.ALTER_QUEUE ")
+            OTEXT("    (")
+            OTEXT("        queue_name           => :queue_name, ")
+            OTEXT("        max_retries          => :max_retries, ")
+            OTEXT("        retry_delay          => :retry_delay, ")
+            OTEXT("        retention_time       => :retention_time, ")
+            OTEXT("        comment              => :comment ")
+            OTEXT("    ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":max_retries"),  &max_retries);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":retry_delay"),  &retry_delay);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":retention_time"),  &retention_time);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":comment"), (otext *) (comment ? comment : OCI_STRING_EMPTY), 0);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":max_retries"),  &max_retries))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":retry_delay"),  &retry_delay))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":retention_time"),  &retention_time))
+    CHECK(OcilibStatementBindString(st, OTEXT(":comment"), (otext *) (comment ? comment : OCI_STRING_EMPTY), 0))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueDestroy
+ * OcilibQueueDrop
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueDrop
+boolean OcilibQueueDrop
 (
     OCI_Connection *con,
     const otext    *queue_name
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_name)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_name)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("BEGIN ")
-                            OTEXT("    DBMS_AQADM.DROP_QUEUE ")
-                            OTEXT("    (")
-                            OTEXT("        queue_name  => :queue_name ")
-                            OTEXT("    ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("BEGIN ")
+            OTEXT("    DBMS_AQADM.DROP_QUEUE ")
+            OTEXT("    (")
+            OTEXT("        queue_name  => :queue_name ")
+            OTEXT("    ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueStart
+ * OcilibQueueStart
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueStart
+boolean OcilibQueueStart
 (
     OCI_Connection *con,
     const otext    *queue_name,
@@ -216,58 +254,67 @@ boolean OCI_API OCI_QueueStart
     boolean         dequeue
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_name)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_name)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("DECLARE ")
-                            OTEXT("    v_enqueue BOOLEAN  := FALSE; ")
-                            OTEXT("    v_dequeue BOOLEAN  := FALSE; ")
-                            OTEXT("BEGIN ")
-                            OTEXT("    IF (:enqueue = 1) then ")
-                            OTEXT("        v_enqueue := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    IF (:dequeue = 1) then ")
-                            OTEXT("        v_dequeue := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    DBMS_AQADM.START_QUEUE ")
-                            OTEXT("   (")
-                            OTEXT("       queue_name => :queue_name, ")
-                            OTEXT("       enqueue    => v_enqueue, ")
-                            OTEXT("       dequeue    => v_dequeue ")
-                            OTEXT("   ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_enqueue BOOLEAN  := FALSE; ")
+            OTEXT("    v_dequeue BOOLEAN  := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    IF (:enqueue = 1) then ")
+            OTEXT("        v_enqueue := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    IF (:dequeue = 1) then ")
+            OTEXT("        v_dequeue := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.START_QUEUE ")
+            OTEXT("   (")
+            OTEXT("       queue_name => :queue_name, ")
+            OTEXT("       enqueue    => v_enqueue, ")
+            OTEXT("       dequeue    => v_dequeue ")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":enqueue"),  &enqueue);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":dequeue"),  &dequeue);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":enqueue"),  &enqueue))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":dequeue"),  &dequeue))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueStop
+ * OcilibQueueStop
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueStop
+boolean OcilibQueueStop
 (
     OCI_Connection *con,
     const otext    *queue_name,
@@ -276,64 +323,73 @@ boolean OCI_API OCI_QueueStop
     boolean         wait
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_name)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_name)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("DECLARE ")
-                            OTEXT("    v_enqueue BOOLEAN  := FALSE; ")
-                            OTEXT("    v_dequeue BOOLEAN  := FALSE; ")
-                            OTEXT("    v_wait    BOOLEAN  := FALSE; ")
-                            OTEXT("BEGIN ")
-                            OTEXT("    IF (:enqueue = 1) then ")
-                            OTEXT("        v_enqueue := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    IF (:dequeue = 1) then ")
-                            OTEXT("        v_dequeue := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    IF (:wait = 1) then ")
-                            OTEXT("        v_wait := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    DBMS_AQADM.STOP_QUEUE ")
-                            OTEXT("   (")
-                            OTEXT("       queue_name => :queue_name, ")
-                            OTEXT("       enqueue    => v_enqueue, ")
-                            OTEXT("       dequeue    => v_dequeue, ")
-                            OTEXT("       wait       => v_wait ")
-                            OTEXT("   ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_enqueue BOOLEAN  := FALSE; ")
+            OTEXT("    v_dequeue BOOLEAN  := FALSE; ")
+            OTEXT("    v_wait    BOOLEAN  := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    IF (:enqueue = 1) then ")
+            OTEXT("        v_enqueue := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    IF (:dequeue = 1) then ")
+            OTEXT("        v_dequeue := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    IF (:wait = 1) then ")
+            OTEXT("        v_wait := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.STOP_QUEUE ")
+            OTEXT("   (")
+            OTEXT("       queue_name => :queue_name, ")
+            OTEXT("       enqueue    => v_enqueue, ")
+            OTEXT("       dequeue    => v_dequeue, ")
+            OTEXT("       wait       => v_wait ")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":enqueue"),  &enqueue);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":dequeue"),  &dequeue);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":wait"),  &wait);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_name"),  (otext *) queue_name, 0))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":enqueue"),  &enqueue))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":dequeue"),  &dequeue))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":wait"),  &wait))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueTableCreate
+ * OcilibQueueTableCreate
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueTableCreate
+boolean OcilibQueueTableCreate
 (
     OCI_Connection *con,
     const otext    *queue_table,
@@ -348,71 +404,79 @@ boolean OCI_API OCI_QueueTableCreate
     const otext    *compatible
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
+    CHECK_PTR(OCI_IPC_STRING,     queue_payload_type)
+    CHECK_ENUM_VALUE(message_grouping, GroupingModeValues, OTEXT("Grouping mode"))
 
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_payload_type)
-    OCI_CALL_CHECK_ENUM_VALUE(con, NULL, message_grouping, GroupingModeValues, OTEXT("Grouping mode"))
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    st = OCI_StatementCreate(con);
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_multiple_consumers BOOLEAN  := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    IF (:multiple_consumers = 1) then ")
+            OTEXT("        v_multiple_consumers := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.CREATE_QUEUE_TABLE ")
+            OTEXT("   (")
+            OTEXT("       queue_table        => :queue_table, ")
+            OTEXT("       queue_payload_type => :queue_payload_type, ")
+            OTEXT("       storage_clause     => :storage_clause, ")
+            OTEXT("       sort_list          => :sort_list, ")
+            OTEXT("       multiple_consumers => v_multiple_consumers, ")
+            OTEXT("       message_grouping   => :message_grouping, ")
+            OTEXT("       comment            => :comment, ")
+            OTEXT("       primary_instance   => :primary_instance, ")
+            OTEXT("       secondary_instance => :secondary_instance, ")
+            OTEXT("       compatible         => :compatible")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("DECLARE ")
-                            OTEXT("    v_multiple_consumers BOOLEAN  := FALSE; ")
-                            OTEXT("BEGIN ")
-                            OTEXT("    IF (:multiple_consumers = 1) then ")
-                            OTEXT("        v_multiple_consumers := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    DBMS_AQADM.CREATE_QUEUE_TABLE ")
-                            OTEXT("   (")
-                            OTEXT("       queue_table        => :queue_table, ")
-                            OTEXT("       queue_payload_type => :queue_payload_type, ")
-                            OTEXT("       storage_clause     => :storage_clause, ")
-                            OTEXT("       sort_list          => :sort_list, ")
-                            OTEXT("       multiple_consumers => v_multiple_consumers, ")
-                            OTEXT("       message_grouping   => :message_grouping, ")
-                            OTEXT("       comment            => :comment, ")
-                            OTEXT("       primary_instance   => :primary_instance, ")
-                            OTEXT("       secondary_instance => :secondary_instance, ")
-                            OTEXT("       compatible         => :compatible")
-                            OTEXT("   ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *) queue_table, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_payload_type"), (otext *) queue_payload_type, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":storage_clause"), (otext *) (storage_clause ? storage_clause : OCI_STRING_EMPTY), 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":sort_list"), (otext *) (sort_list ? sort_list : OCI_STRING_EMPTY), 0))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":multiple_consumers"),  &multiple_consumers))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":message_grouping"),  &message_grouping))
+    CHECK(OcilibStatementBindString(st, OTEXT(":comment"), (otext *)( comment ? comment : OCI_STRING_EMPTY), 0))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":primary_instance"),  &primary_instance))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":secondary_instance"),  &secondary_instance))
+    CHECK(OcilibStatementBindString(st, OTEXT(":compatible"), (otext *) (compatible ? compatible : OCI_STRING_EMPTY), 0))
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *) queue_table, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_payload_type"), (otext *) queue_payload_type, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":storage_clause"), (otext *) (storage_clause ? storage_clause : OCI_STRING_EMPTY), 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":sort_list"), (otext *) (sort_list ? sort_list : OCI_STRING_EMPTY), 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":multiple_consumers"),  &multiple_consumers);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":message_grouping"),  &message_grouping);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":comment"), (otext *)( comment ? comment : OCI_STRING_EMPTY), 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":primary_instance"),  &primary_instance);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":secondary_instance"),  &secondary_instance);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":compatible"), (otext *) (compatible ? compatible : OCI_STRING_EMPTY), 0);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    SET_SUCCESS()
 
-        OCI_StatementFree(st);
-    }
-
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueTableAlter
+ * OcilibQueueTableAlter
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueTableAlter
+boolean OcilibQueueTableAlter
 (
     OCI_Connection *con,
     const otext    *queue_table,
@@ -421,103 +485,121 @@ boolean OCI_API OCI_QueueTableAlter
     unsigned int    secondary_instance
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("BEGIN ")
-                            OTEXT("    DBMS_AQADM.ALTER_QUEUE_TABLE ")
-                            OTEXT("   (")
-                            OTEXT("       queue_table        => :queue_table, ")
-                            OTEXT("       comment            => :comment, ")
-                            OTEXT("       primary_instance   => :primary_instance, ")
-                            OTEXT("       secondary_instance => :secondary_instance ")
-                            OTEXT("   ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("BEGIN ")
+            OTEXT("    DBMS_AQADM.ALTER_QUEUE_TABLE ")
+            OTEXT("   (")
+            OTEXT("       queue_table        => :queue_table, ")
+            OTEXT("       comment            => :comment, ")
+            OTEXT("       primary_instance   => :primary_instance, ")
+            OTEXT("       secondary_instance => :secondary_instance ")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *)  queue_table, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":comment"),  (otext *) (comment ?  comment: OCI_STRING_EMPTY), 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":primary_instance"),  &primary_instance);
-        OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":secondary_instance"),  &secondary_instance);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *)  queue_table, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":comment"),  (otext *) (comment ?  comment : OCI_STRING_EMPTY), 0))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":primary_instance"),  &primary_instance))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":secondary_instance"),  &secondary_instance))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueTableDrop
+ * OcilibQueueTableDrop
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueTableDrop
+boolean OcilibQueueTableDrop
 (
     OCI_Connection *con,
     const otext    *queue_table,
     boolean         force
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("DECLARE ")
-                            OTEXT("    v_force       BOOLEAN  := FALSE; ")
-                            OTEXT("BEGIN ")
-                            OTEXT("    IF (:force = 1) then ")
-                            OTEXT("        v_force := TRUE; ")
-                            OTEXT("    END IF; ")
-                            OTEXT("    DBMS_AQADM.DROP_QUEUE_TABLE ")
-                            OTEXT("   (")
-                            OTEXT("       queue_table  => :queue_table, ")
-                            OTEXT("       force        => v_force ")
-                            OTEXT("   ); ")
-                            OTEXT("END; ")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_force       BOOLEAN  := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    IF (:force = 1) then ")
+            OTEXT("        v_force := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.DROP_QUEUE_TABLE ")
+            OTEXT("   (")
+            OTEXT("       queue_table  => :queue_table, ")
+            OTEXT("       force        => v_force ")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":force"), &force);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":force"), &force))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueTablePurge
+ * OcilibQueueTablePurge
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueTablePurge
+boolean OcilibQueueTablePurge
 (
     OCI_Connection *con,
     const otext    *queue_table,
@@ -526,106 +608,117 @@ boolean OCI_API OCI_QueueTablePurge
     unsigned int    delivery_mode
 )
 {
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CHECK_ENUM_VALUE(con, NULL, delivery_mode, DeliveryModeValues, OTEXT("Delivery mode"))
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
 
-    if (con->ver_num >= OCI_10_1)
-    {
-        OCI_Statement *st = NULL;
+    OCI_Statement *st = NULL;
 
-        st = OCI_StatementCreate(con);
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
+    CHECK_ENUM_VALUE(delivery_mode, DeliveryModeValues, OTEXT("Delivery mode"))
+    CHECK(con->ver_num >= OCI_10_1)
 
-        if (st)
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
+
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("DECLARE ")
+            OTEXT("    v_purge_options DBMS_AQADM.AQ$_PURGE_OPTIONS_T; ")
+            OTEXT("    v_block         BOOLEAN := FALSE; ")
+            OTEXT("BEGIN ")
+            OTEXT("    v_purge_options.block         := FALSE; ")
+            OTEXT("    v_purge_options.delivery_mode := :delivery_mode; ")
+            OTEXT("    IF (:block = 1) then ")
+            OTEXT("        v_purge_options.block := TRUE; ")
+            OTEXT("    END IF; ")
+            OTEXT("    DBMS_AQADM.PURGE_QUEUE_TABLE ")
+            OTEXT("    (")
+            OTEXT("        queue_table      => :queue_table, ")
+            OTEXT("        purge_condition  => :purge_condition, ")
+            OTEXT("        purge_options    => v_purge_options ")
+            OTEXT("   ); ")
+            OTEXT("END; ")
+        )
+    )
+
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":purge_condition"), (otext *) (purge_condition ? purge_condition : OCI_STRING_EMPTY), 0))
+    CHECK(OcilibStatementBindInt(st, OTEXT(":block"), &block))
+    CHECK(OcilibStatementBindUnsignedInt(st, OTEXT(":delivery_mode"), &delivery_mode))
+
+    CHECK(OcilibStatementExecute(st))
+
+    SET_SUCCESS()
+
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
         {
-            OCI_STATUS = OCI_Prepare
-                          (
-                                st,
-                                OTEXT("DECLARE ")
-                                OTEXT("    v_purge_options DBMS_AQADM.AQ$_PURGE_OPTIONS_T; ")
-                                OTEXT("    v_block         BOOLEAN := FALSE; ")
-                                OTEXT("BEGIN ")
-                                OTEXT("    v_purge_options.block         := FALSE; ")
-                                OTEXT("    v_purge_options.delivery_mode := :delivery_mode; ")
-                                OTEXT("    IF (:block = 1) then ")
-                                OTEXT("        v_purge_options.block := TRUE; ")
-                                OTEXT("    END IF; ")
-                                OTEXT("    DBMS_AQADM.PURGE_QUEUE_TABLE ")
-                                OTEXT("    (")
-                                OTEXT("        queue_table      => :queue_table, ")
-                                OTEXT("        purge_condition  => :purge_condition, ")
-                                OTEXT("        purge_options    => v_purge_options ")
-                                OTEXT("   ); ")
-                                OTEXT("END; ")
-                          );
-
-            OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0);
-            OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":purge_condition"),
-                                                        (otext *) (purge_condition ? purge_condition : OCI_STRING_EMPTY), 0);
-            OCI_STATUS = OCI_STATUS && OCI_BindInt(st, OTEXT(":block"), &block);
-            OCI_STATUS = OCI_STATUS && OCI_BindUnsignedInt(st, OTEXT(":delivery_mode"), &delivery_mode);
-
-            OCI_STATUS = OCI_STATUS && OCI_Execute(st);
-
-            OCI_StatementFree(st);
+            OcilibStatementFree(st);
         }
-
-        OCI_RETVAL = OCI_STATUS;
-    }
-    else
-    {
-        OCI_RETVAL = FALSE;
-    }
-
-    OCI_CALL_EXIT()
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_QueueTableMigrate
+ * OcilibQueueTableMigrate
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_API OCI_QueueTableMigrate
+boolean OcilibQueueTableMigrate
 (
     OCI_Connection *con,
     const otext    *queue_table,
     const otext    *compatible
 )
 {
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_CONNECTION, con
+    )
+
     OCI_Statement *st = NULL;
 
-    OCI_CALL_ENTER(boolean, FALSE)
-    OCI_CALL_CHECK_PTR(OCI_IPC_CONNECTION, con)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, queue_table)
-    OCI_CALL_CHECK_PTR(OCI_IPC_STRING, compatible)
-    OCI_CALL_CONTEXT_SET_FROM_CONN(con)
+    CHECK_PTR(OCI_IPC_CONNECTION, con)
+    CHECK_PTR(OCI_IPC_STRING,     queue_table)
+    CHECK_PTR(OCI_IPC_STRING,     compatible)
 
-    st = OCI_StatementCreate(con);
+    st = OcilibStatementCreate(con);
+    CHECK_NULL(st)
 
-    if (st)
-    {
-        OCI_STATUS = OCI_Prepare
-                      (
-                            st,
-                            OTEXT("BEGIN ")
-                            OTEXT("   DBMS_AQADM.MIGRATE_QUEUE_TABLE")
-                            OTEXT("   (")
-                            OTEXT("       queue_table => :queue_table, ")
-                            OTEXT("       compatible  => :compatible ")
-                            OTEXT("   );")
-                            OTEXT("END;")
-                      );
+    CHECK
+    (
+        OcilibStatementPrepare
+        (
+            st,
+            OTEXT("BEGIN ")
+            OTEXT("   DBMS_AQADM.MIGRATE_QUEUE_TABLE")
+            OTEXT("   (")
+            OTEXT("       queue_table => :queue_table, ")
+            OTEXT("       compatible  => :compatible ")
+            OTEXT("   );")
+            OTEXT("END;")
+        )
+    )
 
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0);
-        OCI_STATUS = OCI_STATUS && OCI_BindString(st, OTEXT(":compatible"), (otext *)compatible, 0);
+    CHECK(OcilibStatementBindString(st, OTEXT(":queue_table"), (otext *)queue_table, 0))
+    CHECK(OcilibStatementBindString(st, OTEXT(":compatible"), (otext *)compatible, 0))
 
-        OCI_STATUS = OCI_STATUS && OCI_Execute(st);
+    CHECK(OcilibStatementExecute(st))
 
-        OCI_StatementFree(st);
-    }
+    SET_SUCCESS()
 
-    OCI_RETVAL = OCI_STATUS;
-
-    OCI_CALL_EXIT()
+    CLEANUP_AND_EXIT_FUNC
+    (
+        if (NULL != st)
+        {
+            OcilibStatementFree(st);
+        }
+    )
 }

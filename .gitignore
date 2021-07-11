@@ -63,6 +63,7 @@ build/
 *.bsc
 *.lastbuildstate
 *.tlog
+*.o
 
 # Visual C++ cache files
 ipch/
@@ -172,4 +173,11 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 *.opendb
+
+# Unit test files
 /tests/packages/*.*
+testlog.manifest
+*.testlog
+/nuget/*.nupkg
+*Browse.VC.db-wal
+*Browse.VC.db-shm

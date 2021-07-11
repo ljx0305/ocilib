@@ -3,7 +3,7 @@
  *
  * Website: http://www.ocilib.net
  *
- * Copyright (c) 2007-2020 Vincent ROGIER <vince.rogier@ocilib.net>
+ * Copyright (c) 2007-2021 Vincent ROGIER <vince.rogier@ocilib.net>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,26 @@
  * limitations under the License.
  */
 
-#include "ocilib_internal.h"
+#include "event.h"
 
-/* ********************************************************************************************* *
- *                             PRIVATE FUNCTIONS
- * ********************************************************************************************* */
+#include "macros.h"
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventReset
+ * OcilibEventReset
  * --------------------------------------------------------------------------------------------- */
 
-boolean OCI_EventReset
+boolean OcilibEventReset
 (
     OCI_Event *event
 )
 {
-    OCI_CHECK(NULL == event, FALSE)
+    ENTER_FUNC
+    (
+        /* returns */ boolean, FALSE,
+        /* context */ OCI_IPC_EVENT, event
+    )
+
+    CHECK_PTR(OCI_IPC_EVENT, event)
 
     event->op   = OCI_UNKNOWN;
     event->type = OCI_UNKNOWN;
@@ -53,81 +57,109 @@ boolean OCI_EventReset
         event->rowid[0] = 0;
     }
 
-    return TRUE;
+    SET_SUCCESS()
+
+    EXIT_FUNC()
 }
 
-/* ********************************************************************************************* *
- *                            PUBLIC FUNCTIONS
- * ********************************************************************************************* */
-
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetType
+ * OcilibEventGetType
  * --------------------------------------------------------------------------------------------- */
 
-unsigned int OCI_API OCI_EventGetType
+unsigned int OcilibEventGetType
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(unsigned int, OCI_UNKNOWN, OCI_IPC_EVENT, event, type, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ unsigned int, OCI_UNKNOWN,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ type
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetOperation
+ * OcilibEventGetOperation
  * --------------------------------------------------------------------------------------------- */
 
-unsigned int OCI_API OCI_EventGetOperation
+unsigned int OcilibEventGetOperation
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(unsigned int, OCI_UNKNOWN, OCI_IPC_EVENT, event, op, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ unsigned int, OCI_UNKNOWN,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ op
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetDatabase
+ * OcilibEventGetDatabase
  * --------------------------------------------------------------------------------------------- */
 
-const otext * OCI_API OCI_EventGetDatabase
+const otext * OcilibEventGetDatabase
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(const otext *, NULL, OCI_IPC_EVENT, event, dbname, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ const otext *, NULL,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ dbname
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetObject
+ * OcilibEventGetObject
  * --------------------------------------------------------------------------------------------- */
 
-const otext * OCI_API OCI_EventGetObject
+const otext * OcilibEventGetObject
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(const otext *, NULL, OCI_IPC_EVENT, event, objname, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ const otext *, NULL,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ objname
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetRowid
+ * OcilibEventGetRowid
  * --------------------------------------------------------------------------------------------- */
 
-const otext * OCI_API OCI_EventGetRowid
+const otext * OcilibEventGetRowid
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(const otext *, NULL, OCI_IPC_EVENT, event, rowid, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ const otext *, NULL,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ rowid
+    )
 }
 
 /* --------------------------------------------------------------------------------------------- *
- * OCI_EventGetSubscription
+ * OcilibEventGetSubscription
  * --------------------------------------------------------------------------------------------- */
 
-OCI_Subscription * OCI_API OCI_EventGetSubscription
+OCI_Subscription * OcilibEventGetSubscription
 (
     OCI_Event *event
 )
 {
-    OCI_GET_PROP(OCI_Subscription *, NULL, OCI_IPC_EVENT, event, sub, event->sub->con, NULL, event->sub->err)
+    GET_PROP
+    (
+        /* result */ OCI_Subscription *, NULL,
+        /* handle */ OCI_IPC_EVENT, event,
+        /* member */ sub
+    )
 }
